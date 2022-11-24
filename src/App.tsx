@@ -9,6 +9,7 @@ import {
 import './App.css';
 
 import HomePage from './pages/HomePage';
+import InserisciComponentePage from './pages/InserisciComponentePage';
 import InserisciFormPage from './pages/InserisciFormPage';
 import ListaFormPage from './pages/ListaFormPage';
 import SchedaFormPage from './pages/SchedaFormPage';
@@ -27,7 +28,8 @@ function App() {
           <Route path="/inserisci-form" element={<InserisciFormPage />} />
           <Route path="/scheda-form/:formId" element={<SchedaFormPage />} />
 
-          
+          <Route path="/inserisci-componente/:formId" element={<InserisciComponentePage />} />
+
 
         </Routes>
       </BrowserRouter>
