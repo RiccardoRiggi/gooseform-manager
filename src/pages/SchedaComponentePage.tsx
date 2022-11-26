@@ -11,14 +11,24 @@ import { InserisciFormValidator } from '../validators/InserisciFormValidator';
 import gooseComponentService from '../services/GooseComponentService';
 import { InserisciComponenteValidator } from '../validators/InserisciComponenteValidator';
 import { GooseComponentType } from '../type/GooseComponentType';
+import gooseValidationService from '../services/GooseValidationService';
+import GooseHttpRequestPanel from '../components/manager/GooseHttpRequestPanel';
+import GooseKeyValuePanel from '../components/manager/GooseKeyValuePanel';
+import GooseTooltipPanel from '../components/manager/GooseTooltipPanel';
+import GoosePopupPanel from '../components/manager/GoosePopupPanel';
+import GooseComponentSpecificPanel from '../components/manager/GooseComponentSpecificPanel';
 
 
-export default function InserisciComponentePage() {
+export default function SchedaComponentePage() {
 
     let params = useParams();
 
-    const [formId, setFormId] = React.useState<string>(params.formId != undefined ? params.formId : "");
+    const [ricercaEseguita, setRicercaEseguita] = React.useState(false);
 
+    const [formId, setFormId] = React.useState<string>(params.formId != undefined ? params.formId : "");
+    const [componentId, setComponentId] = React.useState<string>(params.componentId != undefined ? params.componentId : "");
+
+    const [listaPossibiliAttributiSpecifici,setListaPossibiliAttributiSpecifici] = React.useState([]);
 
     const listaType = [
         "Scegli...",
@@ -57,19 +67,25 @@ export default function InserisciComponentePage() {
     const [formErrors, setFormErrors] = React.useState(Object);
 
 
-    const [componentId, setComponentId] = React.useState<string>("");
+    const [chiamataHttpSupportata, setChiamataHttpSupportata] = React.useState(false);
+    const [valuesSupportati, setValuesSupportati] = React.useState(false);
 
-    const aggiornaComponentId = (event: any) => {
-        setComponentId(event.target.value);
-        verificaEsistenzaComponentId(formId, event.target.value);
-    };
 
     const [componentIdEsistente, setComponentIdEsistente] = React.useState<boolean>(false);
 
-    const verificaEsistenzaComponentId = async (formId: string, componentId: string) => {
-        await gooseComponentService.getComponent(formId, componentId).then(response => {
-            console.warn(response.data);
-            setComponentIdEsistente(response.data.id != undefined);
+    const recuperaListaPossibiliAttributiSpecifici = async (type: string) => {
+        await gooseValidationService.getListaComponentSpecific(type).then(response => {
+
+            for(let c=0;c<response.data.length;c++){
+                console.warn(response.data[c]);
+                if(response.data[c].k=="values"){
+                    setValuesSupportati(true);
+                }
+                if(response.data[c].k=="dynamicValues"){
+                    setChiamataHttpSupportata(true);
+                }
+            }
+            setListaPossibiliAttributiSpecifici(response.data);
         }).catch(e => {
             console.error(e);
         });
@@ -123,7 +139,7 @@ export default function InserisciComponentePage() {
         setRequiredMark(event.target.value);
     };
 
-    const inserisciForm = async () => {
+    const modificaForm = async () => {
         dispatch(fetchTestoDangerAction(""));
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
@@ -145,52 +161,85 @@ export default function InserisciComponentePage() {
                 widthMd: widthMd,
                 widthSm: widthMd,
                 width: width,
-                requiredMark: requiredMark=="SI"
+                requiredMark: requiredMark == "SI"
             };
 
-            await gooseComponentService.inserisciComponente(jsonBody).then(response => {
+            await gooseComponentService.modificaComponent(formId, componentId, jsonBody).then(response => {
                 dispatch(fetchIsLoadingAction(false));
                 dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
-                navigate("/scheda-componente/" + formId+"/"+componentId);
+                navigate("/scheda-componente/" + formId + "/" + componentId);
             }).catch(e => {
                 dispatch(fetchIsLoadingAction(false));
                 console.error(e.response);
                 dispatch(fetchTestoDangerAction("Errore durante l'inserimento del form"));
             });
         } else {
-            dispatch(fetchTestoWarnAction("Verifica le informazioni inserite"))
+            dispatch(fetchTestoWarnAction("Verifica le informazioni inserite!"))
         }
 
 
     }
 
+
+    const ricerca = async () => {
+        if (params.formId != undefined && params.componentId != undefined) {
+            let formId = params.formId != undefined ? params.formId : "";
+            let componentId = params.componentId != undefined ? params.componentId : "";
+
+            await gooseComponentService.getComponent(formId,componentId).then(response => {
+                console.warn(response.data);
+                let formTrovato: GooseComponentType = response.data;
+                setLabel(formTrovato.label);
+                setType(formTrovato.type)
+                setWidth(formTrovato.width);
+                setWidthSm(formTrovato.widthSm);
+                setWidthMd(formTrovato.widthMd);
+                setWidthLg(formTrovato.widthLg);
+                setWidthXl(formTrovato.widthXl);
+                setRequiredMark(formTrovato.requiredMark==true?"SI":"NO");
+                recuperaListaPossibiliAttributiSpecifici(formTrovato.type);
+
+                dispatch(fetchIsLoadingAction(false));
+            }).catch(e => {
+                console.error(e);
+                dispatch(fetchIsLoadingAction(false));
+            });
+        } else {
+            dispatch(fetchIsLoadingAction(false));
+            navigate("/scheda-form/"+formId);
+        }
+
+    }
+
+    useEffect(() => {
+        if (!ricercaEseguita) {
+            dispatch(fetchIsLoadingAction(true));
+            setRicercaEseguita(true);
+            ricerca();
+        }
+    });
+
     return (
         <Layout>
-            <div className="card shadow mb-4">
+            <Link className='btn btn-primary' to={"/scheda-form/"+formId}>Indietro</Link>
+            <div className="card shadow mb-4 mt-2">
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-plus mr-2"></i>Inserisci componente per il form "{formId}"</h6>
-                    <span onClick={inserisciForm} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
+                    <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-edit mr-2"></i>Modifica componente "{componentId}" per il form "{formId}"</h6>
+                    <span onClick={modificaForm} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
 
                 </div>
                 <div className="card-body">
                     <div className='row'>
-                        <div className='col-4'>
-                            <label>Identificativo<strong className='text-danger'>*</strong></label>
-                            <input type={"text"} onChange={aggiornaComponentId} className={componentIdEsistente ? "form-control is-invalid" : "form-control"} id={"formId"} name={"formId"} placeholder={"Inserisci il componentId"} value={componentId} />
-                            {componentIdEsistente && <small className='text-danger'>L'identificativo inserito non è disponibile</small>
-                            }
-                            <small className='text-danger'>{formErrors.componentId}</small>
-                        </div>
-                        <div className='col-4'>
+                        <div className='col-6'>
                             <label>Label<strong className='text-danger'>*</strong></label>
                             <input type={"text"} onChange={aggiornaLabel} className={"form-control"} id={"label"} name={"label"} placeholder={"Inserisci una label"} value={label} />
                             <small className='text-danger'>{formErrors.label}</small>
                         </div>
-                        <div className='col-4'>
+                        <div className='col-6'>
                             <label>Tipo</label>
 
-                            <select className={"form-control"} id={"type"} onChange={aggiornaType} value={type}>
+                            <select disabled className={"form-control"} id={"type"} onChange={aggiornaType} value={type}>
                                 {Array.isArray(listaType) && listaType.map((val: string) =>
                                     <option value={val} >{val}</option>
                                 )}
@@ -256,6 +305,16 @@ export default function InserisciComponentePage() {
                 </div>
             </div>
 
+
+            {chiamataHttpSupportata && <GooseHttpRequestPanel type={"DATA"} />}
+
+            {valuesSupportati && <GooseKeyValuePanel />}
+
+            <GooseTooltipPanel />
+
+            <GoosePopupPanel />
+
+            {type != "" && <GooseComponentSpecificPanel type={type} /> }
 
         </Layout >
     );

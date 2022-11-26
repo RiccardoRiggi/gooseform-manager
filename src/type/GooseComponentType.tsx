@@ -9,7 +9,6 @@ export type GooseComponentType = {
     widthMd: string
     widthSm: string
     width: string
-    setting: Object
     requiredMark: boolean
 
 }

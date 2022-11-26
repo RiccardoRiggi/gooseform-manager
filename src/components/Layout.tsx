@@ -30,7 +30,7 @@ export default function Layout({ children }: any) {
                             {feedback.testoDanger && <div className="alert alert-danger" role="alert">{feedback.testoDanger}<button onClick={() => dispatch(fetchTestoDangerAction(""))} type="button" className="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button></div>}
-                            {feedback.testoWarn && <div className="alert alert-warn" role="alert">{feedback.testoWarn}<button onClick={() => dispatch(fetchTestoWarnAction(""))} type="button" className="close" data-dismiss="alert" aria-label="Close">
+                            {feedback.testoWarn && <div className="alert alert-warning" role="alert">{feedback.testoWarn}<button onClick={() => dispatch(fetchTestoWarnAction(""))} type="button" className="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button></div>}
                             {feedback.testoSuccess && <div className="alert alert-success" role="alert">{feedback.testoSuccess}<button onClick={() => dispatch(fetchTestoSuccessAction(""))} type="button" className="close" data-dismiss="alert" aria-label="Close">

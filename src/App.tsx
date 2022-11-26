@@ -12,6 +12,7 @@ import HomePage from './pages/HomePage';
 import InserisciComponentePage from './pages/InserisciComponentePage';
 import InserisciFormPage from './pages/InserisciFormPage';
 import ListaFormPage from './pages/ListaFormPage';
+import SchedaComponentePage from './pages/SchedaComponentePage';
 import SchedaFormPage from './pages/SchedaFormPage';
 
 
@@ -29,6 +30,7 @@ function App() {
           <Route path="/scheda-form/:formId" element={<SchedaFormPage />} />
 
           <Route path="/inserisci-componente/:formId" element={<InserisciComponentePage />} />
+          <Route path="/scheda-componente/:formId/:componentId" element={<SchedaComponentePage />} />
 
 
         </Routes>

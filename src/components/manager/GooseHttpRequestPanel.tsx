@@ -115,7 +115,7 @@ export default function GooseHttpRequestPanel(props: any) {
     }
 
     const ricercaComponentChiamata = async () => {
-        await gooseHttpService.getChiamataById(formId, componentId).then(response => {
+        await gooseHttpService.getChiamataById(params.formId!=undefined?params.formId:"", params.componentId!=undefined?params.componentId:"").then(response => {
             console.warn(response.data);
             let formTrovato: GooseHttpRequestType = response.data;
             setUrl(formTrovato.url);
@@ -134,7 +134,7 @@ export default function GooseHttpRequestPanel(props: any) {
     }
 
     const ricercaFormChiamata = async () => {
-        await gooseHttpService.getChiamataByFormId(formId, type).then(response => {
+        await gooseHttpService.getChiamataByFormId(params.formId!=undefined?params.formId:"", type).then(response => {
             console.warn(response.data);
             let formTrovato: GooseHttpRequestType = response.data;
             setUrl(formTrovato.url);
@@ -167,9 +167,11 @@ export default function GooseHttpRequestPanel(props: any) {
     const ricercaIniziale = async () => {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
-            if (componentId != "") {
+            if (params.componentId != undefined) {
+                console.warn("RICERCA HTTP - COMPONENTID")
                 ricercaComponentChiamata();
             } else {
+                console.warn("RICERCA HTTP - FORMID")
                 ricercaFormChiamata();
             }
 

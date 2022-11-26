@@ -6,7 +6,9 @@ export function InserisciComponenteValidator(id: string, type: string, label: st
         errors.id = "Il campo identificativo è richiesto";
     }
 
-
+    if (type == undefined || type == "" || type == "Scegli...") {
+        errors.type = "Il tipo è richiesto";
+    }
 
 
     return errors;

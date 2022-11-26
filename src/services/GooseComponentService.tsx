@@ -1,9 +1,10 @@
 import http from "../http-common";
 import { GooseComponentSpecificType } from "../type/GooseComponentSpecificType";
+import { GooseComponentType } from "../type/GooseComponentType";
 import { GooseFormType } from "../type/GooseFormType";
 import { GooseKVComponentType } from "../type/GooseKVComponentType";
 
-const inserisciComponente = (jsonBody: GooseFormType) => {
+const inserisciComponente = (jsonBody: GooseComponentType) => {
     return http.post("/component/inserisci",jsonBody);
 }
 
@@ -15,7 +16,7 @@ const getListaComponent = (formId: string) => {
     return http.get("/component/"+formId);
 }
 
-const modificaComponent = (formId: string, componentId: string, jsonBody: GooseFormType) => {
+const modificaComponent = (formId: string, componentId: string, jsonBody: GooseComponentType) => {
     return http.put("/component/modifica/"+formId+"/"+componentId,jsonBody);
 }
 
