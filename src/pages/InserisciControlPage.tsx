@@ -27,19 +27,44 @@ export default function InserisciControlPage() {
 
     const [formId, setFormId] = React.useState<string>(params.formId != undefined ? params.formId : "");
 
-    const [listaComponent, setListaComponent] = React.useState([]);
+    const [listaComponent, setListaComponent] = React.useState<any>([]);
 
     let dispatch = useDispatch();
     let navigate = useNavigate();
 
     const [formErrors, setFormErrors] = React.useState(Object);
 
+    const [placeHolderSuggerimento, setPlaceHolderSuggerimento] = React.useState<string>("Inserisci un valore...");
 
+    const ricercaSuggerimentoPlaceholder = async (type: string) => {
+        await gooseValidationService.getSuggerimentoPlaceholder(type).then(response => {
+            console.warn(response.data);
+            if(response.data.value!=undefined){
+                setPlaceHolderSuggerimento(response.data.value);
+            }else{
+                setPlaceHolderSuggerimento("Inserisci un valore...");
+            }
+            dispatch(fetchIsLoadingAction(false));
+        }).catch(e => {
+            console.error(e);
+            setPlaceHolderSuggerimento("Inserisci un valore...");
+            dispatch(fetchIsLoadingAction(false));
+        });
+
+
+    }
 
     const [idComponentA, setIdComponentA] = React.useState<string>("");
 
     const aggiornaIdComponentA = (event: any) => {
         setIdComponentA(event.target.value);
+        for (let c = 0; c < listaComponent.length; c++) {
+            console.warn(listaComponent[c]);
+            if (listaComponent[c].id == event.target.value) {
+                ricercaSuggerimentoPlaceholder(listaComponent[c].type);
+                break;
+            }
+        }
     };
 
     const [idComponentB, setIdComponentB] = React.useState<string>("");
@@ -227,9 +252,9 @@ export default function InserisciControlPage() {
                             <small className='text-danger'>{formErrors.type}</small>
                         </div>
 
-                        <div className={type != "STANDARD" || typeSpecific =="IN" || typeSpecific =="NOT_IN" ? "d-none col-6" : "col-6"}>
+                        <div className={type != "STANDARD" || typeSpecific == "IN" || typeSpecific == "NOT_IN" ? "d-none col-6" : "col-6"}>
                             <label>Valore di confronto</label>
-                            <input type={"text"} onChange={aggiornaReferenceValue} className={"form-control"} id={"referenceValue"} name={"referenceValue"} placeholder={"Inserisci un valore di riferimento"} value={referenceValue} />
+                            <input type={"text"} onChange={aggiornaReferenceValue} className={"form-control"} id={"referenceValue"} name={"referenceValue"} placeholder={placeHolderSuggerimento} value={referenceValue} />
                             <small className='text-danger'>{formErrors.referenceValue}</small>
                         </div>
 

@@ -16,10 +16,15 @@ const getListaRender = (type: string) => {
     return http.get("/validation/render/"+type);
 }
 
+const getSuggerimentoPlaceholder = (type: string) => {
+    return http.get("/validation/placeholder/"+type);
+}
+
 const gooseValidationService = {
     getListaComponentSpecific,
     getListaControlli,
-    getListaRender
+    getListaRender,
+    getSuggerimentoPlaceholder
     
 };
 export default gooseValidationService;

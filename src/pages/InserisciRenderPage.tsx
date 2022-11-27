@@ -30,19 +30,44 @@ export default function InserisciRenderPage() {
 
     const [formId, setFormId] = React.useState<string>(params.formId != undefined ? params.formId : "");
 
-    const [listaComponent, setListaComponent] = React.useState([]);
+    const [listaComponent, setListaComponent] = React.useState<any>([]);
 
     let dispatch = useDispatch();
     let navigate = useNavigate();
 
     const [formErrors, setFormErrors] = React.useState(Object);
 
+    const [placeHolderSuggerimento, setPlaceHolderSuggerimento] = React.useState<string>("Inserisci un valore...");
 
+    const ricercaSuggerimentoPlaceholder = async (type: string) => {
+        await gooseValidationService.getSuggerimentoPlaceholder(type).then(response => {
+            console.warn(response.data);
+            if(response.data.value!=undefined){
+                setPlaceHolderSuggerimento(response.data.value);
+            }else{
+                setPlaceHolderSuggerimento("Inserisci un valore...");
+            }
+            dispatch(fetchIsLoadingAction(false));
+        }).catch(e => {
+            console.error(e);
+            setPlaceHolderSuggerimento("Inserisci un valore...");
+            dispatch(fetchIsLoadingAction(false));
+        });
+
+
+    }
 
     const [idComponentA, setIdComponentA] = React.useState<string>("");
 
     const aggiornaIdComponentA = (event: any) => {
         setIdComponentA(event.target.value);
+        for (let c = 0; c < listaComponent.length; c++) {
+            console.warn(listaComponent[c]);
+            if (listaComponent[c].id == event.target.value) {
+                ricercaSuggerimentoPlaceholder(listaComponent[c].type);
+                break;
+            }
+        }
     };
 
     const [idComponentB, setIdComponentB] = React.useState<string>("");
@@ -243,8 +268,8 @@ export default function InserisciRenderPage() {
                         </div>
 
                         <div className={type != "SIMPLE_RENDER" ? "d-none col-12" : "col-12"}>
-                            <label>Valore di confronto</label>
-                            <input type={"text"} onChange={aggiornaValue} className={"form-control"} id={"value"} name={"value"} placeholder={"Inserisci un valore di riferimento"} value={value} />
+                            <label>Valore di confronto X</label>
+                            <input type={"text"} onChange={aggiornaValue} className={"form-control"} id={"value"} name={"value"} placeholder={placeHolderSuggerimento} value={value} />
                             <small className='text-danger'>{formErrors.value}</small>
                         </div>
 
