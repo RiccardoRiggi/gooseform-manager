@@ -68,14 +68,14 @@ export default function GoosePopupPanel() {
             title: title,
             icon: icon,
             description: description,
-            componentId: componentId!=""?componentId:undefined,
+            componentId: componentId != "" ? componentId : undefined,
             textTooltip: textTooltip
         };
 
         console.warn(jsonBody);
 
         if (popupEsistente) {
-            await goosePopupService.modificaPopup(popupTrovato?.pk!=undefined?popupTrovato.pk:-1, jsonBody).then(response => {
+            await goosePopupService.modificaPopup(popupTrovato?.pk != undefined ? popupTrovato.pk : -1, jsonBody).then(response => {
                 dispatch(fetchTestoSuccessAction("Salvataggio del popup avvenuto con successo"));
                 ricerca();
             }).catch(e => {
@@ -146,6 +146,16 @@ export default function GoosePopupPanel() {
         }
     }
 
+    const eliminaPopup = async () => {
+        dispatch(fetchIsLoadingAction(true));
+        await goosePopupService.eliminaPopup(popupTrovato?.pk != undefined ? popupTrovato.pk : -1).then(response => {
+            ricerca();
+        }).catch(e => {
+            console.error(e);
+            dispatch(fetchIsLoadingAction(false));
+        });
+    }
+
     ricercaIniziale();
 
     return (
@@ -154,8 +164,10 @@ export default function GoosePopupPanel() {
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-edit mr-2"></i>{popupEsistente ? "Modifica" : "Inserisci"} popup</h6>
-                    <span onClick={salva} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
-
+                    <div>
+                        {popupEsistente && <span className='btn btn-outline-primary mr-1' data-toggle="modal" data-target="#deletePopup" ><i className="fas fa-trash mr-2"></i>Elimina</span>}
+                        <span onClick={salva} className='btn btn-primary ml-1' ><i className="fas fa-save mr-2"></i>Salva</span>
+                    </div>
                 </div>
                 <div className="card-body">
                     <div className='row'>
@@ -175,6 +187,27 @@ export default function GoosePopupPanel() {
                         <div className='col-12'>
                             <label>Descrizione</label>
                             <textarea onChange={aggiornaDescription} className={"form-control"} id={"description"} name={"description"} placeholder={"Inserisci una descrizione"} value={description} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div className="modal fade" id="deletePopup" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Attenzione!</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            Sei sicuro di voler eliminare il popup? <br /><strong>L'operazione è irreversibile!</strong>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                            <button data-dismiss="modal" onClick={() => eliminaPopup()} type="button" className="btn btn-primary">Elimina popup</button>
                         </div>
                     </div>
                 </div>

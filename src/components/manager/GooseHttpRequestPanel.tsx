@@ -25,6 +25,8 @@ export default function GooseHttpRequestPanel(props: any) {
     const [chiamataTrovata, setChiamataTrovata] = React.useState<GooseHttpRequestType>();
     const [listaHeaders, setListaHeaders] = React.useState([]);
 
+    const [pk, setPk] = React.useState<number>();
+
 
     const [type, setType] = React.useState(props.type);
     const [formId, setFormId] = React.useState(params.formId != undefined ? params.formId : "");
@@ -115,13 +117,14 @@ export default function GooseHttpRequestPanel(props: any) {
     }
 
     const ricercaComponentChiamata = async () => {
-        await gooseHttpService.getChiamataById(params.formId!=undefined?params.formId:"", params.componentId!=undefined?params.componentId:"").then(response => {
+        await gooseHttpService.getChiamataById(params.formId != undefined ? params.formId : "", params.componentId != undefined ? params.componentId : "").then(response => {
             console.warn(response.data);
             let formTrovato: GooseHttpRequestType = response.data;
             setUrl(formTrovato.url);
             setMethod(formTrovato.method);
             setBody(formTrovato.body);
             setChiamataTrovata(formTrovato);
+            setPk(formTrovato.pk);
             setChiamataEsistente(formTrovato.pk != undefined);
             if (formTrovato.pk != undefined) {
                 ricercaHeaders(formTrovato.pk)
@@ -134,13 +137,14 @@ export default function GooseHttpRequestPanel(props: any) {
     }
 
     const ricercaFormChiamata = async () => {
-        await gooseHttpService.getChiamataByFormId(params.formId!=undefined?params.formId:"", type).then(response => {
+        await gooseHttpService.getChiamataByFormId(params.formId != undefined ? params.formId : "", type).then(response => {
             console.warn(response.data);
             let formTrovato: GooseHttpRequestType = response.data;
             setUrl(formTrovato.url);
             setMethod(formTrovato.method);
             setBody(formTrovato.body);
             setChiamataTrovata(formTrovato);
+            setPk(formTrovato.pk);
             setChiamataEsistente(formTrovato.pk != undefined);
             if (formTrovato.pk != undefined) {
                 ricercaHeaders(formTrovato.pk)
@@ -234,7 +238,7 @@ export default function GooseHttpRequestPanel(props: any) {
     }
 
     const eliminaHeader = async (header: GooseHttpRequestKv) => {
-        await gooseHttpService.eliminaHeader(header.pkHttp,header.k).then(response => {
+        await gooseHttpService.eliminaHeader(header.pkHttp, header.k).then(response => {
             dispatch(fetchTestoSuccessAction("Header cancellato con successo"));
             ricercaHeaders(header.pkHttp);
         }).catch(e => {
@@ -244,14 +248,27 @@ export default function GooseHttpRequestPanel(props: any) {
         });
     }
 
+    const eliminaChiamata = async () => {
+        dispatch(fetchIsLoadingAction(true));
+        let pkTmp = pk!=undefined?pk:-1;
+        await gooseHttpService.eliminaChiamata(pkTmp).then(response => {
+            ricerca();
+        }).catch(e => {
+            console.error(e);
+            dispatch(fetchIsLoadingAction(false));
+        });
+    }
+
     return (
         <>
             <div className="card shadow mb-4">
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-edit mr-2"></i>{chiamataEsistente ? "Modifica" : "Inserisci"} endpoint {type}</h6>
-                    <span onClick={salva} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
-
+                    <div>
+                        {chiamataEsistente && <span className='btn btn-outline-primary mr-1' data-toggle="modal" data-target={"#deleteChiamata"+type} ><i className="fas fa-trash mr-2"></i>Elimina</span>}
+                        <span onClick={salva} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
+                    </div>
                 </div>
                 <div className="card-body">
                     <div className='row'>
@@ -317,6 +334,27 @@ export default function GooseHttpRequestPanel(props: any) {
 
                         </div>
                     }
+                </div>
+            </div>
+
+
+            <div className="modal fade" id={"deleteChiamata"+type} tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Attenzione!</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            Sei sicuro di voler eliminare l'endpoint? <br /><strong>L'operazione è irreversibile!</strong>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                            <button data-dismiss="modal" onClick={() => eliminaChiamata()} type="button" className="btn btn-primary">Elimina endpoint</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

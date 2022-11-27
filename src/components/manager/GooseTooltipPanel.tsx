@@ -56,14 +56,14 @@ export default function GooseTooltipPanel() {
         let jsonBody: GooseTooltipType = {
             formId: formId,
             icon: icon,
-            componentId: componentId!=""?componentId:undefined,
+            componentId: componentId != "" ? componentId : undefined,
             tooltip: tooltip
         };
 
         console.warn(jsonBody);
 
         if (tooltipEsistente) {
-            await gooseTooltipService.modificaTooltip(tooltipTrovato?.pk!=undefined?tooltipTrovato.pk:-1, jsonBody).then(response => {
+            await gooseTooltipService.modificaTooltip(tooltipTrovato?.pk != undefined ? tooltipTrovato.pk : -1, jsonBody).then(response => {
                 dispatch(fetchTestoSuccessAction("Salvataggio del tooltip avvenuto con successo"));
                 ricerca();
             }).catch(e => {
@@ -129,6 +129,16 @@ export default function GooseTooltipPanel() {
         }
     }
 
+    const eliminaTooltip = async () => {
+        dispatch(fetchIsLoadingAction(true));
+        await gooseTooltipService.eliminaTooltip(tooltipTrovato?.pk != undefined ? tooltipTrovato.pk : -1).then(response => {
+            ricerca();
+        }).catch(e => {
+            console.error(e);
+            dispatch(fetchIsLoadingAction(false));
+        });
+    }
+
     ricercaIniziale();
 
     return (
@@ -137,8 +147,10 @@ export default function GooseTooltipPanel() {
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-edit mr-2"></i>{tooltipEsistente ? "Modifica" : "Inserisci"} tooltip</h6>
-                    <span onClick={salva} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
-
+                    <div>
+                        {tooltipEsistente && <span className='btn btn-outline-primary mr-1' data-toggle="modal" data-target="#deleteTooltip" ><i className="fas fa-trash mr-2"></i>Elimina</span>}
+                        <span onClick={salva} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
+                    </div>
                 </div>
                 <div className="card-body">
                     <div className='row'>
@@ -150,6 +162,26 @@ export default function GooseTooltipPanel() {
                         <div className='col-6'>
                             <label>Tooltip</label>
                             <input type={"text"} onChange={aggiornaTooltip} className={"form-control"} id={"tooltip"} name={"tooltip"} placeholder={"Inserisci un tooltip"} value={tooltip} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="deleteTooltip" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Attenzione!</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            Sei sicuro di voler eliminare il tooltip? <br /><strong>L'operazione è irreversibile!</strong>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                            <button data-dismiss="modal" onClick={() => eliminaTooltip()} type="button" className="btn btn-primary">Elimina tooltip</button>
                         </div>
                     </div>
                 </div>

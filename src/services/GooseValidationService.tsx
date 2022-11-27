@@ -8,9 +8,18 @@ const getListaComponentSpecific = (type: string) => {
     return http.get("/validation/componente/"+type);
 }
 
+const getListaControlli = (type: string) => {
+    return http.get("/validation/control/"+type);
+}
+
+const getListaRender = (type: string) => {
+    return http.get("/validation/render/"+type);
+}
 
 const gooseValidationService = {
     getListaComponentSpecific,
+    getListaControlli,
+    getListaRender
     
 };
 export default gooseValidationService;

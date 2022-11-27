@@ -13,6 +13,8 @@ import GoosePopupPanel from '../components/manager/GoosePopupPanel';
 import GooseHttpRequestPanel from '../components/manager/GooseHttpRequestPanel';
 import GooseComponentListPanel from '../components/manager/GooseComponentListPanel';
 import GooseTooltipPanel from '../components/manager/GooseTooltipPanel';
+import GooseControlListPanel from '../components/manager/GooseControlListPanel';
+import GooseRenderListPanel from '../components/manager/GooseRenderListPanel';
 
 
 export default function SchedaFormPage() {
@@ -153,6 +155,10 @@ export default function SchedaFormPage() {
             <GooseHttpRequestPanel type={"SUBMIT"} />
 
             <GooseComponentListPanel />
+
+            <GooseControlListPanel />
+
+            <GooseRenderListPanel />
 
         </Layout >
     );
