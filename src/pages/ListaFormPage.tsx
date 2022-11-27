@@ -70,7 +70,6 @@ export default function ListaFormPage() {
                                 <th scope="col"></th>
                                 <th scope="col"></th>
                                 <th scope="col"></th>
-                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +80,6 @@ export default function ListaFormPage() {
                                 <td><i className={form.icon}></i> - {form.icon}</td>
                                 <td>{form.description}</td>
                                 <td className='text-center'><Link className='btn btn-primary' to={"/codice/" + form.formId} ><i className="fas fa-code"></i></Link></td>
-                                <td className='text-center'><Link className='btn btn-primary' to={"/anteprima/" + form.formId} ><i className="fas fa-eye"></i></Link></td>
                                 <td className='text-center'><Link className='btn btn-primary' to={"/scheda-form/" + form.formId} ><i className="fas fa-edit"></i></Link></td>
                                 <td className='text-center'><span onClick={() => setFormSelezionato(form)} data-toggle="modal" data-target="#deleteForm" className='btn btn-primary'><i className="fas fa-trash"></i></span></td>
                             </tr>

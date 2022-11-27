@@ -123,7 +123,7 @@ export default function GooseButtonPanel(props: any) {
                             <input type={"text"} onChange={aggiornaTitle} className={"form-control"} id={"title"} name={"title"} placeholder={"Inserisci il titolo"} value={title} />
                         </div>
                         <div className='col-6'>
-                            <label>Icona</label>
+                            <label>Icona <i className={icon}></i></label>
                             <input type={"text"} onChange={aggiornaIcon} className={"form-control"} id={"icon"} name={"icon"} placeholder={"fa-solid fa-feather"} value={icon} />
                             <small className='text-muted'>Trascrivi il nome da FontAwesome</small>
                         </div>

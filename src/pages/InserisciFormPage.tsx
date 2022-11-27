@@ -111,7 +111,7 @@ export default function InserisciFormPage() {
                             <small className='text-danger'>{formErrors.title}</small>
                         </div>
                         <div className='col-4'>
-                            <label>Icona</label>
+                            <label>Icona <i className={icon}></i></label>
                             <input type={"text"} onChange={aggiornaIcon} className={"form-control"} id={"icon"} name={"icon"} placeholder={"fa-solid fa-feather"} value={icon} />
                             <small className='text-muted'>Trascrivi il nome da FontAwesome</small>
                             <small className='text-danger'>{formErrors.icon}</small>

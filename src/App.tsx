@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import './App.css';
+import CodicePage from './pages/CodicePage';
 
 import HomePage from './pages/HomePage';
 import InserisciComponentePage from './pages/InserisciComponentePage';
@@ -41,6 +42,7 @@ function App() {
 
           <Route path="/inserisci-render/:formId" element={<InserisciRenderPage />} />
 
+          <Route path="/codice/:formId" element={<CodicePage />} />
 
         </Routes>
       </BrowserRouter>

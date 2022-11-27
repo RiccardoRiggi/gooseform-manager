@@ -21,12 +21,16 @@ const eliminaForm = (formId: string) => {
     return http.delete("/form/elimina/"+formId);
 }
 
+const getAnteprimaForm = (formId: string) => {
+    return http.get("/anteprima/"+formId);
+}
 
 const gooseFormService = {
     inserisciForm,
     getForm,
     getListaForm,
     modificaForm,
-    eliminaForm   
+    eliminaForm,
+    getAnteprimaForm 
 };
 export default gooseFormService;
