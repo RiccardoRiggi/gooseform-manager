@@ -87,37 +87,37 @@ export default function InserisciComponentePage() {
         setType(event.target.value);
     };
 
-    const [width, setWidth] = React.useState<string>("");
+    const [width, setWidth] = React.useState<string>("12");
 
     const aggiornaWidth = (event: any) => {
         setWidth(event.target.value);
     };
 
-    const [widthSm, setWidthSm] = React.useState<string>("");
+    const [widthSm, setWidthSm] = React.useState<string>("12");
 
     const aggiornaWidthSm = (event: any) => {
         setWidthSm(event.target.value);
     };
 
-    const [widthMd, setWidthMd] = React.useState<string>("");
+    const [widthMd, setWidthMd] = React.useState<string>("12");
 
     const aggiornaWidthMd = (event: any) => {
         setWidthMd(event.target.value);
     };
 
-    const [widthLg, setWidthLg] = React.useState<string>("");
+    const [widthLg, setWidthLg] = React.useState<string>("12");
 
     const aggiornaWidthLg = (event: any) => {
         setWidthLg(event.target.value);
     };
 
-    const [widthXl, setWidthXl] = React.useState<string>("");
+    const [widthXl, setWidthXl] = React.useState<string>("12");
 
     const aggiornaWidthXl = (event: any) => {
         setWidthXl(event.target.value);
     };
 
-    const [requiredMark, setRequiredMark] = React.useState<string>("");
+    const [requiredMark, setRequiredMark] = React.useState<string>("NO");
 
     const aggiornaRequiredMark = (event: any) => {
         setRequiredMark(event.target.value);

@@ -148,8 +148,6 @@ export default function SchedaFormPage() {
 
             <GoosePopupPanel />
 
-            <GooseTooltipPanel />
-
             <GooseHttpRequestPanel type={"DATA"} />
 
             <GooseHttpRequestPanel type={"SUBMIT"} />

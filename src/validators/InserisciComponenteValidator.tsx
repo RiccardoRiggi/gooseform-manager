@@ -10,6 +10,7 @@ export function InserisciComponenteValidator(id: string, type: string, label: st
         errors.type = "Il tipo è richiesto";
     }
 
+    
 
     return errors;
 }
