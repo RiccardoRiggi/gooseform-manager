@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
 import goosePopupService from '../../services/GoosePopupService';
-import { GooseButtonType } from '../../type/GooseButtonType';
-import { GooseFormType } from '../../type/GooseFormType';
 import { GoosePopupType } from '../../type/GoosePopupType';
+import { InserisciPopupValidator } from '../../validators/InserisciPopupValidator';
 
 
 export default function GoosePopupPanel() {
 
     let params = useParams();
     let dispatch = useDispatch();
+
+    const [formErrors, setFormErrors] = React.useState(Object);
 
     const [popupEsistente, setPopupEsistente] = React.useState(false);
 
@@ -61,46 +61,50 @@ export default function GoosePopupPanel() {
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
 
+        let errors = InserisciPopupValidator(title, icon, description, textTooltip);
+        setFormErrors(errors);
 
-        dispatch(fetchIsLoadingAction(true));
-        let jsonBody: GoosePopupType = {
-            formId: formId,
-            title: title,
-            icon: icon,
-            description: description,
-            componentId: componentId != "" ? componentId : undefined,
-            textTooltip: textTooltip
-        };
+        if (Object.keys(errors).length === 0) {
 
-        console.warn(jsonBody);
+            dispatch(fetchIsLoadingAction(true));
+            let jsonBody: GoosePopupType = {
+                formId: formId,
+                title: title,
+                icon: icon,
+                description: description,
+                componentId: componentId != "" ? componentId : undefined,
+                textTooltip: textTooltip
+            };
 
-        if (popupEsistente) {
-            await goosePopupService.modificaPopup(popupTrovato?.pk != undefined ? popupTrovato.pk : -1, jsonBody).then(response => {
-                dispatch(fetchTestoSuccessAction("Salvataggio del popup avvenuto con successo"));
-                ricerca();
-            }).catch(e => {
-                console.error(e.response);
-                dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoDangerAction("Errore durante l'aggiornamento del popup"));
-            });
+
+            if (popupEsistente) {
+                await goosePopupService.modificaPopup(popupTrovato?.pk != undefined ? popupTrovato.pk : -1, jsonBody).then(response => {
+                    dispatch(fetchTestoSuccessAction("Popup modificato con successo"));
+                    ricerca();
+                }).catch(e => {
+                    console.error(e.response);
+                    dispatch(fetchIsLoadingAction(false));
+                    dispatch(fetchTestoDangerAction("Errore durante l'aggiornamento del popup"));
+                });
+            } else {
+                await goosePopupService.inserisciPopup(jsonBody).then(response => {
+                    dispatch(fetchTestoSuccessAction("Popup inserito con successo"));
+                    ricerca();
+                }).catch(e => {
+                    console.error(e.response);
+                    dispatch(fetchIsLoadingAction(false));
+                    dispatch(fetchTestoDangerAction("Errore durante l'inserimento del popup"));
+                });
+            }
         } else {
-            await goosePopupService.inserisciPopup(jsonBody).then(response => {
-                dispatch(fetchTestoSuccessAction("Inserimento del popup avvenuto con successo"));
-                ricerca();
-            }).catch(e => {
-                console.error(e.response);
-                dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoDangerAction("Errore durante l'inserimento del popup"));
-            });
+            dispatch(fetchTestoWarnAction("Verifica le informazioni inserite!"));
         }
-
 
 
     }
 
     const ricercaComponentPopup = async () => {
         await goosePopupService.getPopupById(formId, componentId).then(response => {
-            console.warn(response.data);
             let formTrovato: GoosePopupType = response.data;
             setTitle(formTrovato.title);
             setIcon(formTrovato.icon);
@@ -118,7 +122,6 @@ export default function GoosePopupPanel() {
 
     const ricercaFormPopup = async () => {
         await goosePopupService.getPopupByFormId(formId).then(response => {
-            console.warn(response.data);
             let formTrovato: GoosePopupType = response.data;
             setTitle(formTrovato.title);
             setIcon(formTrovato.icon);
@@ -149,6 +152,7 @@ export default function GoosePopupPanel() {
     const eliminaPopup = async () => {
         dispatch(fetchIsLoadingAction(true));
         await goosePopupService.eliminaPopup(popupTrovato?.pk != undefined ? popupTrovato.pk : -1).then(response => {
+            dispatch(fetchTestoSuccessAction("Popup eliminato con successo"));
             ricerca();
         }).catch(e => {
             console.error(e);
@@ -174,19 +178,23 @@ export default function GoosePopupPanel() {
                         <div className='col-4'>
                             <label>Titolo<strong className='text-danger'>*</strong></label>
                             <input type={"text"} onChange={aggiornaTitle} className={"form-control"} id={"title"} name={"title"} placeholder={"Inserisci il titolo"} value={title} />
+                            <small className='text-danger'>{formErrors.title}</small>
                         </div>
                         <div className='col-4'>
                             <label>Icona <i className={icon}></i></label>
                             <input type={"text"} onChange={aggiornaIcon} className={"form-control"} id={"icon"} name={"icon"} placeholder={"fa-solid fa-feather"} value={icon} />
-                            <small className='text-muted'>Trascrivi il nome da FontAwesome</small>
+                            <small className='text-danger'>{formErrors.icon}</small>
+                            <small className='text-muted'> Trascrivi il nome da FontAwesome</small>
                         </div>
                         <div className='col-4'>
                             <label>Tooltip</label>
                             <input type={"text"} onChange={aggiornaTextTooltip} className={"form-control"} id={"textTooltip"} name={"textTooltip"} placeholder={"Inserisci un tooltip"} value={textTooltip} />
+                            <small className='text-danger'>{formErrors.textTooltip}</small>
                         </div>
                         <div className='col-12'>
                             <label>Descrizione</label>
                             <textarea onChange={aggiornaDescription} className={"form-control"} id={"description"} name={"description"} placeholder={"Inserisci una descrizione"} value={description} />
+                            <small className='text-danger'>{formErrors.description}</small>
                         </div>
                     </div>
                 </div>

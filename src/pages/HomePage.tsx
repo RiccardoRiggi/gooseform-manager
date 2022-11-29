@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
-import gooseFormService from '../services/GooseFormService';
 import remarkGfm from 'remark-gfm'
+import { useDispatch } from 'react-redux';
+import { fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
 
 
 export default function HomePage() {
+
+    let dispatch = useDispatch();
 
 
     const [ricercaEseguita, setRicercaEseguita] = React.useState(false);
@@ -22,6 +25,9 @@ export default function HomePage() {
 
     useEffect(() => {
         if (!ricercaEseguita) {
+            dispatch(fetchTestoDangerAction(""));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction(""));
             setRicercaEseguita(true);
             ricerca();
         }

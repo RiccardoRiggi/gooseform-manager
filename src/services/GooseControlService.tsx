@@ -1,6 +1,5 @@
 import http from "../http-common";
 import { GooseControlType } from "../type/GooseControlType";
-import { GooseFormType } from "../type/GooseFormType";
 import { GooseKControlType } from "../type/GooseKControlType";
 
 const inserisciControl = (jsonBody: GooseControlType) => {

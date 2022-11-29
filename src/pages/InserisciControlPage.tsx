@@ -1,21 +1,13 @@
 import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
-import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
-import { GooseFormType } from '../type/GooseFormType';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { InserisciFormValidator } from '../validators/InserisciFormValidator';
 import gooseComponentService from '../services/GooseComponentService';
-import { InserisciComponenteValidator } from '../validators/InserisciComponenteValidator';
-import { GooseComponentType } from '../type/GooseComponentType';
 import { InserimentoControlloValidator } from '../validators/InserimentoControlloValidator';
 import gooseValidationService from '../services/GooseValidationService';
 import { GooseControlType } from '../type/GooseControlType';
 import gooseControlService from '../services/GooseControlService';
-import { tmpdir } from 'os';
 
 
 export default function InserisciControlPage() {
@@ -39,14 +31,17 @@ export default function InserisciControlPage() {
     const ricercaSuggerimentoPlaceholder = async (type: string) => {
         await gooseValidationService.getSuggerimentoPlaceholder(type).then(response => {
             console.warn(response.data);
-            if(response.data.value!=undefined){
+            if (response.data.value != undefined) {
                 setPlaceHolderSuggerimento(response.data.value);
-            }else{
+            } else {
                 setPlaceHolderSuggerimento("Inserisci un valore...");
             }
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
-            console.error(e);
+            console.error(e.response);
+            dispatch(fetchTestoDangerAction("Errore durante la ricerca del suggerimento di compilazione"));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction(""));
             setPlaceHolderSuggerimento("Inserisci un valore...");
             dispatch(fetchIsLoadingAction(false));
         });
@@ -134,12 +129,12 @@ export default function InserisciControlPage() {
 
             await gooseControlService.inserisciControl(jsonBody).then(response => {
                 dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
+                dispatch(fetchTestoSuccessAction("Controllo inserito con successo"));
                 navigate("/scheda-form/" + formId);
             }).catch(e => {
                 dispatch(fetchIsLoadingAction(false));
                 console.error(e.response);
-                dispatch(fetchTestoDangerAction("Errore durante l'inserimento del form"));
+                dispatch(fetchTestoDangerAction("Errore durante l'inserimento del controllo"));
             });
         } else {
             dispatch(fetchTestoWarnAction("Verifica le informazioni inserite"))
@@ -156,9 +151,15 @@ export default function InserisciControlPage() {
                 console.warn(response.data);
                 setListaTypeSpecific(response.data);
                 dispatch(fetchIsLoadingAction(false));
+                dispatch(fetchTestoDangerAction(""));
+                dispatch(fetchTestoWarnAction(""));
+                dispatch(fetchTestoSuccessAction(""));
             }).catch(e => {
-                console.error(e);
+                console.error(e.response);
                 dispatch(fetchIsLoadingAction(false));
+                dispatch(fetchTestoDangerAction("Errore durante il recupero dei controlli specifici"));
+                dispatch(fetchTestoWarnAction(""));
+                dispatch(fetchTestoSuccessAction(""));
             });
         } else {
             dispatch(fetchIsLoadingAction(false));
@@ -198,7 +199,10 @@ export default function InserisciControlPage() {
 
     return (
         <Layout>
+            <Link className='btn btn-primary mb-2' to={"/scheda-form/" + formId}>Indietro</Link>
+
             <div className="card shadow mb-4">
+
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-plus mr-2"></i>Inserisci componente per il form "{formId}"</h6>

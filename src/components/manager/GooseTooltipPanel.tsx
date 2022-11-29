@@ -1,20 +1,19 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import {  useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
-import goosePopupService from '../../services/GoosePopupService';
 import gooseTooltipService from '../../services/GooseTooltipService';
-import { GooseButtonType } from '../../type/GooseButtonType';
-import { GooseFormType } from '../../type/GooseFormType';
-import { GoosePopupType } from '../../type/GoosePopupType';
 import { GooseTooltipType } from '../../type/GooseTooltipType';
+import { InserisciTooltipValidator } from '../../validators/InserisciTooltipValidator';
 
 
 export default function GooseTooltipPanel() {
 
     let params = useParams();
     let dispatch = useDispatch();
+
+    const [formErrors, setFormErrors] = React.useState(Object);
+
 
     const [tooltipEsistente, setTooltipEsistente] = React.useState(false);
 
@@ -51,44 +50,48 @@ export default function GooseTooltipPanel() {
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
 
+        let errors = InserisciTooltipValidator(icon,tooltip);
+        setFormErrors(errors);
 
-        dispatch(fetchIsLoadingAction(true));
-        let jsonBody: GooseTooltipType = {
-            formId: formId,
-            icon: icon,
-            componentId: componentId != "" ? componentId : undefined,
-            tooltip: tooltip
-        };
+        if (Object.keys(errors).length === 0) {
 
-        console.warn(jsonBody);
+            dispatch(fetchIsLoadingAction(true));
+            let jsonBody: GooseTooltipType = {
+                formId: formId,
+                icon: icon,
+                componentId: componentId != "" ? componentId : undefined,
+                tooltip: tooltip
+            };
 
-        if (tooltipEsistente) {
-            await gooseTooltipService.modificaTooltip(tooltipTrovato?.pk != undefined ? tooltipTrovato.pk : -1, jsonBody).then(response => {
-                dispatch(fetchTestoSuccessAction("Salvataggio del tooltip avvenuto con successo"));
-                ricerca();
-            }).catch(e => {
-                console.error(e.response);
-                dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoDangerAction("Errore durante l'aggiornamento del popup"));
-            });
-        } else {
-            await gooseTooltipService.inserisciTooltip(jsonBody).then(response => {
-                dispatch(fetchTestoSuccessAction("Inserimento del tooltip avvenuto con successo"));
-                ricerca();
-            }).catch(e => {
-                console.error(e.response);
-                dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoDangerAction("Errore durante l'inserimento del popup"));
-            });
+
+            if (tooltipEsistente) {
+                await gooseTooltipService.modificaTooltip(tooltipTrovato?.pk != undefined ? tooltipTrovato.pk : -1, jsonBody).then(response => {
+                    dispatch(fetchTestoSuccessAction("Salvataggio del tooltip avvenuto con successo"));
+                    ricerca();
+                }).catch(e => {
+                    console.error(e.response);
+                    dispatch(fetchIsLoadingAction(false));
+                    dispatch(fetchTestoDangerAction("Errore durante l'aggiornamento del popup"));
+                });
+            } else {
+                await gooseTooltipService.inserisciTooltip(jsonBody).then(response => {
+                    dispatch(fetchTestoSuccessAction("Tooltip inserito con successo"));
+                    ricerca();
+                }).catch(e => {
+                    console.error(e.response);
+                    dispatch(fetchIsLoadingAction(false));
+                    dispatch(fetchTestoDangerAction("Errore durante l'inserimento del popup"));
+                });
+            }
+
+        } else { 
+            dispatch(fetchTestoWarnAction("Verifica le informazioni inserite!"));
         }
-
-
 
     }
 
     const ricercaComponentTooltip = async () => {
         await gooseTooltipService.getTooltipById(formId, componentId).then(response => {
-            console.warn(response.data);
             let formTrovato: GooseTooltipType = response.data;
             setIcon(formTrovato.icon);
             setTooltip(formTrovato.tooltip);
@@ -104,7 +107,6 @@ export default function GooseTooltipPanel() {
 
     const ricercaFormTooltip = async () => {
         await gooseTooltipService.getTooltipByFormId(formId).then(response => {
-            console.warn(response.data);
             let formTrovato: GooseTooltipType = response.data;
             setIcon(formTrovato.icon);
             setTooltip(formTrovato.tooltip);
@@ -132,6 +134,7 @@ export default function GooseTooltipPanel() {
     const eliminaTooltip = async () => {
         dispatch(fetchIsLoadingAction(true));
         await gooseTooltipService.eliminaTooltip(tooltipTrovato?.pk != undefined ? tooltipTrovato.pk : -1).then(response => {
+            dispatch(fetchTestoSuccessAction("Tooltip eliminato con successo"));
             ricerca();
         }).catch(e => {
             console.error(e);
@@ -157,11 +160,13 @@ export default function GooseTooltipPanel() {
                         <div className='col-6'>
                             <label>Icona<i className={icon}></i></label>
                             <input type={"text"} onChange={aggiornaIcon} className={"form-control"} id={"icon"} name={"icon"} placeholder={"fa-solid fa-feather"} value={icon} />
-                            <small className='text-muted'>Trascrivi il nome da FontAwesome</small>
+                            <small className='text-danger'>{formErrors.icon}</small>
+                            <small className='text-muted'> Trascrivi il nome da FontAwesome</small>
                         </div>
                         <div className='col-6'>
                             <label>Tooltip</label>
                             <input type={"text"} onChange={aggiornaTooltip} className={"form-control"} id={"tooltip"} name={"tooltip"} placeholder={"Inserisci un tooltip"} value={tooltip} />
+                            <small className='text-danger'>{formErrors.tooltip}</small>
                         </div>
                     </div>
                 </div>

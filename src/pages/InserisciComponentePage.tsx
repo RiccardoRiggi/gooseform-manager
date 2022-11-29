@@ -1,13 +1,8 @@
-import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import React from 'react';
 import Layout from '../components/Layout';
-import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
-import { GooseFormType } from '../type/GooseFormType';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { InserisciFormValidator } from '../validators/InserisciFormValidator';
 import gooseComponentService from '../services/GooseComponentService';
 import { InserisciComponenteValidator } from '../validators/InserisciComponenteValidator';
 import { GooseComponentType } from '../type/GooseComponentType';
@@ -68,10 +63,12 @@ export default function InserisciComponentePage() {
 
     const verificaEsistenzaComponentId = async (formId: string, componentId: string) => {
         await gooseComponentService.getComponent(formId, componentId).then(response => {
-            console.warn(response.data);
             setComponentIdEsistente(response.data.id != undefined);
         }).catch(e => {
-            console.error(e);
+            console.error(e.response);
+            dispatch(fetchTestoDangerAction("Errore durante la verifica dell'esistenza di un altro componente con lo stesso identificativo"));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction(""));
         });
     }
 
@@ -128,7 +125,7 @@ export default function InserisciComponentePage() {
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
 
-        let errors = InserisciComponenteValidator(formId, type, label, widthXl, widthLg, widthMd, widthSm, width, requiredMark);
+        let errors = InserisciComponenteValidator(componentId, type, label, widthXl, widthLg, widthMd, widthSm, width, requiredMark);
         setFormErrors(errors);
 
         if (Object.keys(errors).length === 0 && !componentIdEsistente) {
@@ -145,17 +142,17 @@ export default function InserisciComponentePage() {
                 widthMd: widthMd,
                 widthSm: widthMd,
                 width: width,
-                requiredMark: requiredMark=="SI"
+                requiredMark: requiredMark == "SI"
             };
 
             await gooseComponentService.inserisciComponente(jsonBody).then(response => {
                 dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
-                navigate("/scheda-componente/" + formId+"/"+componentId);
+                dispatch(fetchTestoSuccessAction("Componente inserito con successo"));
+                navigate("/scheda-componente/" + formId + "/" + componentId);
             }).catch(e => {
                 dispatch(fetchIsLoadingAction(false));
                 console.error(e.response);
-                dispatch(fetchTestoDangerAction("Errore durante l'inserimento del form"));
+                dispatch(fetchTestoDangerAction("Errore durante l'inserimento del componente"));
             });
         } else {
             dispatch(fetchTestoWarnAction("Verifica le informazioni inserite"))
@@ -166,6 +163,8 @@ export default function InserisciComponentePage() {
 
     return (
         <Layout>
+            <Link className='btn btn-primary mb-2' to={"/scheda-form/" + formId}>Indietro</Link>
+
             <div className="card shadow mb-4">
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -188,7 +187,7 @@ export default function InserisciComponentePage() {
                             <small className='text-danger'>{formErrors.label}</small>
                         </div>
                         <div className='col-4'>
-                            <label>Tipo</label>
+                            <label>Tipo<strong className='text-danger'>*</strong></label>
 
                             <select className={"form-control"} id={"type"} onChange={aggiornaType} value={type}>
                                 {Array.isArray(listaType) && listaType.map((val: string) =>

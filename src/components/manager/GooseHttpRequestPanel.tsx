@@ -1,22 +1,21 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
 import gooseHttpService from '../../services/GooseHttpService';
-import goosePopupService from '../../services/GoosePopupService';
-import { GooseButtonType } from '../../type/GooseButtonType';
-import { GooseFormType } from '../../type/GooseFormType';
 import { GooseHttpRequestKv } from '../../type/GooseHttpRequestKv';
 import { GooseHttpRequestType } from '../../type/GooseHttpRequestType';
 import { GooseKeyValue } from '../../type/GooseKeyValue';
-import { GoosePopupType } from '../../type/GoosePopupType';
+import { InserisciHttpRequestValidator } from '../../validators/InserisciHttpRequestValidator';
 
 
 export default function GooseHttpRequestPanel(props: any) {
 
     let params = useParams();
     let dispatch = useDispatch();
+
+    const [formErrors, setFormErrors] = React.useState(Object);
+
 
     const [chiamataEsistente, setChiamataEsistente] = React.useState(false);
 
@@ -77,42 +76,46 @@ export default function GooseHttpRequestPanel(props: any) {
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
 
+        let errors = InserisciHttpRequestValidator(url, method, body);
+        setFormErrors(errors);
 
-        dispatch(fetchIsLoadingAction(true));
-        let jsonBody: GooseHttpRequestType = {
-            formId: formId,
-            componentId: componentId != "" ? componentId : undefined,
-            url: url,
-            method: method,
-            body: body,
-            typeSpecific: type
-        };
+        if (Object.keys(errors).length === 0) {
 
-        console.warn(jsonBody);
+            dispatch(fetchIsLoadingAction(true));
+            let jsonBody: GooseHttpRequestType = {
+                formId: formId,
+                componentId: componentId != "" ? componentId : undefined,
+                url: url,
+                method: method,
+                body: body,
+                typeSpecific: type
+            };
 
-        console.error(chiamataTrovata?.pk);
 
-        if (chiamataEsistente) {
-            await gooseHttpService.modificaChiamata(chiamataTrovata?.pk != undefined ? chiamataTrovata.pk : -1, jsonBody).then(response => {
-                dispatch(fetchTestoSuccessAction("Salvataggio dell'endpoin " + type + " avvenuto con successo"));
-                ricerca();
-            }).catch(e => {
-                console.error(e.response);
-                dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoDangerAction("Errore durante l'aggiornamento dell'endpoint " + type));
-            });
+
+            if (chiamataEsistente) {
+                await gooseHttpService.modificaChiamata(chiamataTrovata?.pk != undefined ? chiamataTrovata.pk : -1, jsonBody).then(response => {
+                    dispatch(fetchTestoSuccessAction("Salvataggio dell'endpoin " + type + " avvenuto con successo"));
+                    ricerca();
+                }).catch(e => {
+                    console.error(e.response);
+                    dispatch(fetchIsLoadingAction(false));
+                    dispatch(fetchTestoDangerAction("Errore durante l'aggiornamento dell'endpoint " + type));
+                });
+            } else {
+                await gooseHttpService.inserisciChiamata(jsonBody).then(response => {
+                    dispatch(fetchTestoSuccessAction("Inserimento dell'endpoint " + type + " avvenuto con successo"));
+                    ricerca();
+                }).catch(e => {
+                    console.error(e.response);
+                    dispatch(fetchIsLoadingAction(false));
+                    dispatch(fetchTestoDangerAction("Errore durante l'inserimento dell'endpoint " + type));
+                });
+            }
+
         } else {
-            await gooseHttpService.inserisciChiamata(jsonBody).then(response => {
-                dispatch(fetchTestoSuccessAction("Inserimento dell'endpoint " + type + " avvenuto con successo"));
-                ricerca();
-            }).catch(e => {
-                console.error(e.response);
-                dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoDangerAction("Errore durante l'inserimento dell'endpoint " + type));
-            });
+
         }
-
-
 
     }
 
@@ -138,7 +141,6 @@ export default function GooseHttpRequestPanel(props: any) {
 
     const ricercaFormChiamata = async () => {
         await gooseHttpService.getChiamataByFormId(params.formId != undefined ? params.formId : "", type).then(response => {
-            console.warn(response.data);
             let formTrovato: GooseHttpRequestType = response.data;
             setUrl(formTrovato.url);
             setMethod(formTrovato.method);
@@ -159,7 +161,6 @@ export default function GooseHttpRequestPanel(props: any) {
     const ricercaHeaders = async (pk: number) => {
         dispatch(fetchIsLoadingAction(true));
         await gooseHttpService.getHeaders(pk).then(response => {
-            console.warn(response.data);
             setListaHeaders(response.data);
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
@@ -172,10 +173,8 @@ export default function GooseHttpRequestPanel(props: any) {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
             if (params.componentId != undefined) {
-                console.warn("RICERCA HTTP - COMPONENTID")
                 ricercaComponentChiamata();
             } else {
-                console.warn("RICERCA HTTP - FORMID")
                 ricercaFormChiamata();
             }
 
@@ -215,7 +214,6 @@ export default function GooseHttpRequestPanel(props: any) {
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
 
-
         dispatch(fetchIsLoadingAction(true));
         let jsonBody: GooseHttpRequestKv = {
             k: chiave,
@@ -228,12 +226,12 @@ export default function GooseHttpRequestPanel(props: any) {
 
 
         await gooseHttpService.inserisciHeader(jsonBody).then(response => {
-            dispatch(fetchTestoSuccessAction("Inserimento header avvenuto con successo"));
+            dispatch(fetchTestoSuccessAction("Header inserito con successo"));
             ricerca();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
-            dispatch(fetchTestoDangerAction("Errore durante l'inserimento dell'header "));
+            dispatch(fetchTestoDangerAction("Errore durante l'inserimento dell'header"));
         });
     }
 
@@ -250,8 +248,9 @@ export default function GooseHttpRequestPanel(props: any) {
 
     const eliminaChiamata = async () => {
         dispatch(fetchIsLoadingAction(true));
-        let pkTmp = pk!=undefined?pk:-1;
+        let pkTmp = pk != undefined ? pk : -1;
         await gooseHttpService.eliminaChiamata(pkTmp).then(response => {
+            dispatch(fetchTestoSuccessAction("Endpoint eliminato con successo"));
             ricerca();
         }).catch(e => {
             console.error(e);
@@ -266,7 +265,7 @@ export default function GooseHttpRequestPanel(props: any) {
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-edit mr-2"></i>{chiamataEsistente ? "Modifica" : "Inserisci"} endpoint {type}</h6>
                     <div>
-                        {chiamataEsistente && <span className='btn btn-outline-primary mr-1' data-toggle="modal" data-target={"#deleteChiamata"+type} ><i className="fas fa-trash mr-2"></i>Elimina</span>}
+                        {chiamataEsistente && <span className='btn btn-outline-primary mr-1' data-toggle="modal" data-target={"#deleteChiamata" + type} ><i className="fas fa-trash mr-2"></i>Elimina</span>}
                         <span onClick={salva} className='btn btn-primary' ><i className="fas fa-save mr-2"></i>Salva</span>
                     </div>
                 </div>
@@ -275,6 +274,7 @@ export default function GooseHttpRequestPanel(props: any) {
                         <div className='col-8'>
                             <label>Url<strong className='text-danger'>*</strong></label>
                             <input type={"text"} onChange={aggiornaUrl} className={"form-control"} id={"url"} name={"url"} placeholder={"Inserisci un url"} value={url} />
+                            <small className='text-danger'>{formErrors.url}</small>
                         </div>
                         <div className='col-4'>
                             <label>Icona</label>
@@ -284,10 +284,12 @@ export default function GooseHttpRequestPanel(props: any) {
                                     <option value={val.key} >{val.value}</option>
                                 )}
                             </select>
+                            <small className='text-danger'>{formErrors.method}</small>
                         </div>
                         <div className='col-12'>
                             <label>Body</label>
                             <textarea onChange={aggiornaBody} className={"form-control"} id={"body"} name={"body"} placeholder={"Inserisci un body"} value={body} />
+                            <small className='text-danger'>{formErrors.body}</small>
                         </div>
 
 
@@ -306,12 +308,13 @@ export default function GooseHttpRequestPanel(props: any) {
                                         <tr>
                                             <th scope="col">
                                                 <input type={"text"} onChange={aggiornaChiave} className={"form-control"} id={"chiave"} name={"chiave"} placeholder={"Chiave..."} value={chiave} />
+
                                             </th>
                                             <th scope="col">
                                                 <input type={"text"} onChange={aggiornaValore} className={"form-control"} id={"valore"} name={"valore"} placeholder={"Valore..."} value={valore} />
                                             </th>
                                             <th scope="col " className='text-center'>
-                                                <span onClick={salvaHeader} className='btn btn-primary' ><i className="fas fa-save"></i></span>
+                                                {chiave != "" && valore != "" && <span onClick={salvaHeader} className='btn btn-primary' ><i className="fas fa-save"></i></span>}
                                             </th>
                                         </tr>
                                     </thead>
@@ -338,7 +341,7 @@ export default function GooseHttpRequestPanel(props: any) {
             </div>
 
 
-            <div className="modal fade" id={"deleteChiamata"+type} tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id={"deleteChiamata" + type} tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">

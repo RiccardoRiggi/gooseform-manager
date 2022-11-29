@@ -1,15 +1,8 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
-import gooseComponentService from '../../services/GooseComponentService';
-import gooseControlService from '../../services/GooseControlService';
 import gooseRenderService from '../../services/GooseRenderService';
-import { GooseButtonType } from '../../type/GooseButtonType';
-import { GooseComponentType } from '../../type/GooseComponentType';
-import { GooseControlType } from '../../type/GooseControlType';
-import { GooseKControlType } from '../../type/GooseKControlType';
 import { GooseRenderType } from '../../type/GooseRenderType';
 
 
@@ -30,7 +23,6 @@ export default function GooseRenderListPanel() {
 
     const ricerca = async () => {
         await gooseRenderService.getListaRender(formId).then(response => {
-            console.warn(response.data);
             setListaRender(response.data);
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
@@ -39,10 +31,10 @@ export default function GooseRenderListPanel() {
         });
     }
 
-    const eliminaComponente = async (pk: number) => {
+    const eliminaRender = async (pk: number) => {
         dispatch(fetchIsLoadingAction(true));
         await gooseRenderService.eliminaRender(pk).then(response => {
-            console.warn(response.data);
+            dispatch(fetchTestoDangerAction("Render eliminato con successo"));
             ricerca();
         }).catch(e => {
             console.error(e);
@@ -54,9 +46,7 @@ export default function GooseRenderListPanel() {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
             await gooseRenderService.getListaRender(formId).then(response => {
-                console.warn(response.data);
                 setListaRender(response.data);
-
                 dispatch(fetchIsLoadingAction(false));
             }).catch(e => {
                 console.error(e);
@@ -120,11 +110,11 @@ export default function GooseRenderListPanel() {
                             </button>
                         </div>
                         <div className="modal-body">
-                            Sei sicuro di voler eliminare il controllo con identificativo <strong>{renderSelezionato?.pk}</strong>? <br /><strong>L'operazione è irreversibile!</strong>
+                            Sei sicuro di voler eliminare il render selezionato? <br /><strong>L'operazione è irreversibile!</strong>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                            <button data-dismiss="modal" onClick={() => eliminaComponente(renderSelezionato?.pk != undefined ? renderSelezionato.pk : -1)} type="button" className="btn btn-primary">Elimina render</button>
+                            <button data-dismiss="modal" onClick={() => eliminaRender(renderSelezionato?.pk != undefined ? renderSelezionato.pk : -1)} type="button" className="btn btn-primary">Elimina render</button>
                         </div>
                     </div>
                 </div>

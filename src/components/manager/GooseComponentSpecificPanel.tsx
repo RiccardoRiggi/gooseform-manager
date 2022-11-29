@@ -1,20 +1,11 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import {  useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
 import gooseComponentService from '../../services/GooseComponentService';
-import gooseHttpService from '../../services/GooseHttpService';
-import goosePopupService from '../../services/GoosePopupService';
 import gooseValidationService from '../../services/GooseValidationService';
-import { GooseButtonType } from '../../type/GooseButtonType';
 import { GooseComponentSpecificType } from '../../type/GooseComponentSpecificType';
-import { GooseFormType } from '../../type/GooseFormType';
-import { GooseHttpRequestKv } from '../../type/GooseHttpRequestKv';
-import { GooseHttpRequestType } from '../../type/GooseHttpRequestType';
-import { GooseKeyValue } from '../../type/GooseKeyValue';
-import { GooseKVComponent } from '../../type/GooseKVComponent';
-import { GoosePopupType } from '../../type/GoosePopupType';
+
 
 
 export default function GooseComponentSpecificPanel(props: any) {
@@ -66,7 +57,7 @@ export default function GooseComponentSpecificPanel(props: any) {
         setValore(event.target.value);
     };
 
-    const ricercaHeaders = async () => {
+    const ricercaListaAttributi = async () => {
         dispatch(fetchIsLoadingAction(true));
         await gooseComponentService.getListaComponentSpecific(params.formId != undefined ? params.formId : "", params.componentId != undefined ? params.componentId : "").then(response => {
             console.warn(response.data);
@@ -82,7 +73,7 @@ export default function GooseComponentSpecificPanel(props: any) {
 
 
 
-    const salvaHeader = async () => {
+    const salvaAttributo = async () => {
         dispatch(fetchTestoDangerAction(""));
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
@@ -96,13 +87,9 @@ export default function GooseComponentSpecificPanel(props: any) {
             valoreAttributo: valore,
         };
 
-        console.error(jsonBody);
-
-
-
         await gooseComponentService.inserisciComponenteSpecific(jsonBody).then(response => {
-            dispatch(fetchTestoSuccessAction("Inserimento attributo aggiuntivo avvenuto con successo"));
-            ricercaHeaders();
+            dispatch(fetchTestoSuccessAction("Attributo aggiuntivo inserito con successo"));
+            ricercaListaAttributi();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
@@ -110,10 +97,10 @@ export default function GooseComponentSpecificPanel(props: any) {
         });
     }
 
-    const eliminaHeader = async (oggetto: GooseComponentSpecificType) => {
+    const eliminaAttributo = async (oggetto: GooseComponentSpecificType) => {
         await gooseComponentService.eliminaComponentSpecific(formId, componentId, oggetto.nomeAttributo).then(response => {
             dispatch(fetchTestoSuccessAction("Attributo aggiuntivo cancellato con successo"));
-            ricercaHeaders();
+            ricercaListaAttributi();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
@@ -152,7 +139,7 @@ export default function GooseComponentSpecificPanel(props: any) {
     const ricercaIniziale = async () => {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
-            ricercaHeaders();
+            ricercaListaAttributi();
             recuperaListaPossibiliAttributiSpecifici(props.type);
         }
     }
@@ -199,12 +186,13 @@ export default function GooseComponentSpecificPanel(props: any) {
 
                                             {chiaveSelezionata.v == "Boolean" &&
                                                 <select className={"form-control"} id={"valore"} onChange={aggiornaValore} value={valore}>
+                                                    <option value={""} >{"Scegli..."}</option>
                                                     <option value={"FALSE"} >{"FALSE"}</option>
                                                     <option value={"TRUE"} >{"TRUE"}</option>
                                                 </select>}
                                         </th>
                                         <th scope="col " className={attributoDuplicato || valore == "" ? 'text-center d-none' : 'text-center'}>
-                                            <span onClick={salvaHeader} className='btn btn-primary' ><i className="fas fa-save"></i></span>
+                                            <span onClick={salvaAttributo} className='btn btn-primary' ><i className="fas fa-save"></i></span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -214,7 +202,7 @@ export default function GooseComponentSpecificPanel(props: any) {
                                             <th scope="row">{header.nomeAttributo}</th>
                                             <td>{header.valoreAttributo}</td>
                                             <td className='text-center'>
-                                                <span onClick={() => eliminaHeader(header)} className='btn btn-primary' ><i className="fas fa-trash "></i></span>
+                                                <span onClick={() => eliminaAttributo(header)} className='btn btn-primary' ><i className="fas fa-trash "></i></span>
                                             </td>
                                         </tr>
                                     )}

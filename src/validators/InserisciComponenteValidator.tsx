@@ -3,7 +3,11 @@ export function InserisciComponenteValidator(id: string, type: string, label: st
     let errors: any = {}
 
     if (id == undefined || id == "") {
-        errors.id = "Il campo identificativo è richiesto";
+        errors.componentId = "Il campo identificativo è richiesto";
+    }
+
+    if (label == undefined || label == "") {
+        errors.label = "Il campo label è richiesto";
     }
 
     if (type == undefined || type == "" || type == "Scegli...") {
@@ -11,6 +15,5 @@ export function InserisciComponenteValidator(id: string, type: string, label: st
     }
 
     
-
     return errors;
 }

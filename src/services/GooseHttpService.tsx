@@ -1,9 +1,6 @@
 import http from "../http-common";
-import { GooseButtonType } from "../type/GooseButtonType";
-import { GooseFormType } from "../type/GooseFormType";
 import { GooseHttpRequestKv } from "../type/GooseHttpRequestKv";
 import { GooseHttpRequestType } from "../type/GooseHttpRequestType";
-import { GoosePopupType } from "../type/GoosePopupType";
 
 const inserisciChiamata = (jsonBody: GooseHttpRequestType) => {
     return http.post("/http/inserisci",jsonBody);

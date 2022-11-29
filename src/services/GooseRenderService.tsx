@@ -1,7 +1,4 @@
 import http from "../http-common";
-import { GooseControlType } from "../type/GooseControlType";
-import { GooseFormType } from "../type/GooseFormType";
-import { GooseKControlType } from "../type/GooseKControlType";
 import { GooseRenderType } from "../type/GooseRenderType";
 
 const inserisciRender = (jsonBody: GooseRenderType) => {

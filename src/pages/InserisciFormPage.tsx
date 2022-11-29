@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import React from 'react';
 import Layout from '../components/Layout';
 import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
 import { GooseFormType } from '../type/GooseFormType';
@@ -15,7 +13,7 @@ export default function InserisciFormPage() {
     let dispatch = useDispatch();
     let navigate = useNavigate();
 
-    const [formErrors,setFormErrors] = React.useState(Object);
+    const [formErrors, setFormErrors] = React.useState(Object);
 
     const [formId, setFormId] = React.useState<string>("");
 
@@ -30,7 +28,10 @@ export default function InserisciFormPage() {
         await gooseFormService.getForm(formId).then(response => {
             setFormIdEsistente(response.data.formId != undefined)
         }).catch(e => {
-            console.error(e);
+            console.error(e.response);
+            dispatch(fetchTestoDangerAction("Errore durante la verifica dell'esistenza di un form con lo stesso identificativo inserito"));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction(""));
         });
     }
 
@@ -57,11 +58,11 @@ export default function InserisciFormPage() {
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
 
-        let errors = InserisciFormValidator(formId,title,icon,description);
+        let errors = InserisciFormValidator(formId, title, icon, description);
         setFormErrors(errors);
 
-        if(Object.keys(errors).length===0 && !formIdEsistente){
-            
+        if (Object.keys(errors).length === 0 && !formIdEsistente) {
+
             dispatch(fetchIsLoadingAction(false));
 
             let jsonBody: GooseFormType = {
@@ -73,23 +74,25 @@ export default function InserisciFormPage() {
 
             await gooseFormService.inserisciForm(jsonBody).then(response => {
                 dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
-                navigate("/scheda-form/"+formId);
+                dispatch(fetchTestoSuccessAction("Form inserito con successo"));
+                navigate("/scheda-form/" + formId);
             }).catch(e => {
                 dispatch(fetchIsLoadingAction(false));
                 console.error(e.response);
                 dispatch(fetchTestoDangerAction("Errore durante l'inserimento del form"));
             });
-        }else{
+        } else {
             dispatch(fetchTestoWarnAction("Verifica le informazioni inserite"))
         }
 
-        
+
     }
 
     return (
         <Layout>
-            <div className="card shadow mb-4">
+            <Link className='btn btn-primary' to={"/lista-form/"}>Indietro</Link>
+
+            <div className="card shadow mb-4 mt-2">
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 className="m-0 font-weight-bold text-primary"><i className="fas fa-fw fa-plus mr-2"></i>Inserisci form</h6>

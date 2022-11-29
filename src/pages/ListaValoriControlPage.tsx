@@ -1,8 +1,5 @@
 import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
-import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import gooseControlService from '../services/GooseControlService';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
@@ -57,23 +54,23 @@ export default function ListaValoriControlPage() {
 
 
         await gooseControlService.inserisciRiga(jsonBody).then(response => {
-            dispatch(fetchTestoSuccessAction("Inserimento header avvenuto con successo"));
+            dispatch(fetchTestoSuccessAction("Valore inserito con successo"));
             ricercaHeaders();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
-            dispatch(fetchTestoDangerAction("Errore durante l'inserimento dell'header "));
+            dispatch(fetchTestoDangerAction("Errore durante l'inserimento del valore"));
         });
     }
 
     const eliminaHeader = async (pk: number, k: string) => {
         await gooseControlService.eliminaRiga(pk, k).then(response => {
-            dispatch(fetchTestoSuccessAction("Header cancellato con successo"));
+            dispatch(fetchTestoSuccessAction("Valore cancellato con successo"));
             ricercaHeaders();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
-            dispatch(fetchTestoDangerAction("Errore durante la cancellazione dell'header"));
+            dispatch(fetchTestoDangerAction("Errore durante la cancellazione del valore"));
         });
     }
 

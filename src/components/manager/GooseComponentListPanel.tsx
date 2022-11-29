@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
 import gooseComponentService from '../../services/GooseComponentService';
-import { GooseButtonType } from '../../type/GooseButtonType';
 import { GooseComponentType } from '../../type/GooseComponentType';
 
 
@@ -21,9 +19,8 @@ export default function GooseComponentListPanel() {
 
     const[componenteSelezionato,setComponenteSelezionato] = React.useState<GooseComponentType>();
 
-    const ricerca = async () => {
+    const ricercaComponenti = async () => {
         await gooseComponentService.getListaComponent(formId).then(response => {
-            console.warn(response.data);
             setListaComponenti(response.data);
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
@@ -35,11 +32,12 @@ export default function GooseComponentListPanel() {
     const eliminaComponente = async (componentId: string) => {
         dispatch(fetchIsLoadingAction(true));
         await gooseComponentService.eliminaComponent(formId,componentId).then(response => {
-            console.warn(response.data);
-            ricerca();
+            dispatch(fetchTestoSuccessAction("Componente eliminato con successo"));
+            ricercaComponenti();
         }).catch(e => {
             console.error(e);
             dispatch(fetchIsLoadingAction(false));
+            dispatch(fetchTestoDangerAction("Errore durante l'eliminazione del componente"));
         });
     }
 
@@ -47,9 +45,7 @@ export default function GooseComponentListPanel() {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
             await gooseComponentService.getListaComponent(formId).then(response => {
-                console.warn(response.data);
                 setListaComponenti(response.data);
-
                 dispatch(fetchIsLoadingAction(false));
             }).catch(e => {
                 console.error(e);

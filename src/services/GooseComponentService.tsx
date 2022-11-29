@@ -1,7 +1,6 @@
 import http from "../http-common";
 import { GooseComponentSpecificType } from "../type/GooseComponentSpecificType";
 import { GooseComponentType } from "../type/GooseComponentType";
-import { GooseFormType } from "../type/GooseFormType";
 import { GooseKVComponentType } from "../type/GooseKVComponentType";
 
 const inserisciComponente = (jsonBody: GooseComponentType) => {

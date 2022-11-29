@@ -1,7 +1,4 @@
 import http from "../http-common";
-import { GooseButtonType } from "../type/GooseButtonType";
-import { GooseFormType } from "../type/GooseFormType";
-import { GoosePopupType } from "../type/GoosePopupType";
 import { GooseTooltipType } from "../type/GooseTooltipType";
 
 const inserisciTooltip = (jsonBody: GooseTooltipType) => {

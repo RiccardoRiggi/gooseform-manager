@@ -1,21 +1,10 @@
 import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
-import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
-import { GooseFormType } from '../type/GooseFormType';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { InserisciFormValidator } from '../validators/InserisciFormValidator';
 import gooseComponentService from '../services/GooseComponentService';
-import { InserisciComponenteValidator } from '../validators/InserisciComponenteValidator';
-import { GooseComponentType } from '../type/GooseComponentType';
-import { InserimentoControlloValidator } from '../validators/InserimentoControlloValidator';
 import gooseValidationService from '../services/GooseValidationService';
-import { GooseControlType } from '../type/GooseControlType';
-import gooseControlService from '../services/GooseControlService';
-import { tmpdir } from 'os';
 import { GooseRenderType } from '../type/GooseRenderType';
 import { InserimentoRenderValidator } from '../validators/InserimentoRenderValidator';
 import gooseRenderService from '../services/GooseRenderService';
@@ -42,9 +31,9 @@ export default function InserisciRenderPage() {
     const ricercaSuggerimentoPlaceholder = async (type: string) => {
         await gooseValidationService.getSuggerimentoPlaceholder(type).then(response => {
             console.warn(response.data);
-            if(response.data.value!=undefined){
+            if (response.data.value != undefined) {
                 setPlaceHolderSuggerimento(response.data.value);
-            }else{
+            } else {
                 setPlaceHolderSuggerimento("Inserisci un valore...");
             }
             dispatch(fetchIsLoadingAction(false));
@@ -88,7 +77,7 @@ export default function InserisciRenderPage() {
         setValue(event.target.value);
     };
 
-   
+
 
     const listaType = [
         "Scegli...",
@@ -139,7 +128,7 @@ export default function InserisciRenderPage() {
 
             await gooseRenderService.inserisciRender(jsonBody).then(response => {
                 dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
+                dispatch(fetchTestoSuccessAction("Render inserito con successo"));
                 navigate("/scheda-form/" + formId);
             }).catch(e => {
                 dispatch(fetchIsLoadingAction(false));
@@ -202,6 +191,8 @@ export default function InserisciRenderPage() {
 
     return (
         <Layout>
+            <Link className='btn btn-primary mb-2' to={"/scheda-form/" + formId}>Indietro</Link>
+
             <div className="card shadow mb-4">
                 <div
                     className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -274,7 +265,7 @@ export default function InserisciRenderPage() {
                         </div>
 
 
-                       
+
                     </div>
                 </div>
             </div>

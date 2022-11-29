@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
 import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
 import { GooseFormType } from '../type/GooseFormType';
@@ -12,7 +10,6 @@ import GooseButtonPanel from '../components/manager/GooseButtonPanel';
 import GoosePopupPanel from '../components/manager/GoosePopupPanel';
 import GooseHttpRequestPanel from '../components/manager/GooseHttpRequestPanel';
 import GooseComponentListPanel from '../components/manager/GooseComponentListPanel';
-import GooseTooltipPanel from '../components/manager/GooseTooltipPanel';
 import GooseControlListPanel from '../components/manager/GooseControlListPanel';
 import GooseRenderListPanel from '../components/manager/GooseRenderListPanel';
 
@@ -65,7 +62,7 @@ export default function SchedaFormPage() {
 
             await gooseFormService.modificaForm(params.formId != undefined ? params.formId : "", jsonBody).then(response => {
                 setFormIdEsistente(response.data.formId != undefined);
-                dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
+                dispatch(fetchTestoSuccessAction("Form modificato con successo"));
                 ricerca();
 
             }).catch(e => {
@@ -112,6 +109,7 @@ export default function SchedaFormPage() {
 
     return (
         <Layout>
+            <Link className='btn btn-primary mb-2' to={"/lista-form/"}>Indietro</Link>
 
             <div className="card shadow mb-4">
                 <div

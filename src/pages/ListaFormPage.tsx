@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
 import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
-import { fetchIsLoadingAction } from '../modules/feedback/actions';
+import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
 import { GooseFormType } from '../type/GooseFormType';
 import { Link } from 'react-router-dom';
 
@@ -17,11 +15,10 @@ export default function ListaFormPage() {
     const [ricercaEseguita, setRicercaEseguita] = React.useState(false);
     const [listaForm, setListaForm] = React.useState([]);
 
-    const[formSelezionato,setFormSelezionato] = React.useState<GooseFormType>();
+    const [formSelezionato, setFormSelezionato] = React.useState<GooseFormType>();
 
     const ricerca = async () => {
         await gooseFormService.getListaForm().then(response => {
-            console.warn(response.data);
             setListaForm(response.data);
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
@@ -33,17 +30,25 @@ export default function ListaFormPage() {
     const eliminaForm = async (formId: string) => {
         dispatch(fetchIsLoadingAction(true));
         await gooseFormService.eliminaForm(formId).then(response => {
-            console.warn(response.data);
+            dispatch(fetchTestoDangerAction(""));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction("Form eliminato con successo"));
             ricerca();
         }).catch(e => {
             console.error(e);
             dispatch(fetchIsLoadingAction(false));
+            dispatch(fetchTestoDangerAction("Errore durante l'eliminazione del form "+formId));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction(""));
         });
     }
 
 
     useEffect(() => {
         if (!ricercaEseguita) {
+            dispatch(fetchTestoDangerAction(""));
+            dispatch(fetchTestoWarnAction(""));
+            dispatch(fetchTestoSuccessAction(""));
             dispatch(fetchIsLoadingAction(true));
             setRicercaEseguita(true);
             ricerca();
@@ -101,11 +106,11 @@ export default function ListaFormPage() {
                             </button>
                         </div>
                         <div className="modal-body">
-                            Sei sicuro di voler eliminare il form con identificativo <strong>{formSelezionato?.formId}</strong> con titolo <strong>{formSelezionato?.title}</strong>? <br/><strong>L'operazione è irreversibile!</strong>
+                            Sei sicuro di voler eliminare il form con identificativo <strong>{formSelezionato?.formId}</strong> con titolo <strong>{formSelezionato?.title}</strong>? <br /><strong>L'operazione è irreversibile!</strong>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                            <button data-dismiss="modal" onClick={() => eliminaForm(formSelezionato?.formId!=undefined?formSelezionato.formId:"")} type="button" className="btn btn-primary">Elimina form</button>
+                            <button data-dismiss="modal" onClick={() => eliminaForm(formSelezionato?.formId != undefined ? formSelezionato.formId : "")} type="button" className="btn btn-primary">Elimina form</button>
                         </div>
                     </div>
                 </div>

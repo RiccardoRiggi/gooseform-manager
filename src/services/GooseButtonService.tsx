@@ -1,6 +1,5 @@
 import http from "../http-common";
 import { GooseButtonType } from "../type/GooseButtonType";
-import { GooseFormType } from "../type/GooseFormType";
 
 const inserisciButton = (jsonBody: GooseButtonType) => {
     return http.post("/button/inserisci",jsonBody);

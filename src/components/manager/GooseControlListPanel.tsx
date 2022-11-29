@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
-import gooseComponentService from '../../services/GooseComponentService';
 import gooseControlService from '../../services/GooseControlService';
-import { GooseButtonType } from '../../type/GooseButtonType';
-import { GooseComponentType } from '../../type/GooseComponentType';
 import { GooseControlType } from '../../type/GooseControlType';
-import { GooseKControlType } from '../../type/GooseKControlType';
 
 
 export default function GooseControlListPanel() {
@@ -16,19 +11,15 @@ export default function GooseControlListPanel() {
     let params = useParams();
     const dispatch = useDispatch();
 
-    
-
     const [ricercaEseguita, setRicercaEseguita] = React.useState(false);
     const [listaControlli, setListaControlli] = React.useState([]);
 
     const [formId, setFormId] = React.useState(params.formId != undefined ? params.formId : "");
 
-
     const [controlloSelezionato, setControlloSelezionato] = React.useState<GooseControlType>();
 
-    const ricerca = async () => {
+    const ricercaListaControlli = async () => {
         await gooseControlService.getListaControlli(formId).then(response => {
-            console.warn(response.data);
             setListaControlli(response.data);
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
@@ -37,11 +28,11 @@ export default function GooseControlListPanel() {
         });
     }
 
-    const eliminaComponente = async (pk: number) => {
+    const eliminaControllo = async (pk: number) => {
         dispatch(fetchIsLoadingAction(true));
         await gooseControlService.eliminaControllo(pk).then(response => {
-            console.warn(response.data);
-            ricerca();
+            dispatch(fetchTestoSuccessAction("Controllo eliminato con successo"));
+            ricercaListaControlli();
         }).catch(e => {
             console.error(e);
             dispatch(fetchIsLoadingAction(false));
@@ -52,9 +43,7 @@ export default function GooseControlListPanel() {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
             await gooseControlService.getListaControlli(formId).then(response => {
-                console.warn(response.data);
                 setListaControlli(response.data);
-
                 dispatch(fetchIsLoadingAction(false));
             }).catch(e => {
                 console.error(e);
@@ -96,7 +85,7 @@ export default function GooseControlListPanel() {
                                 <td>{form.errorMessage}</td>
                                 <td className='text-center'>
                                     <div className='d-flex align-items-center justify-content-center'>
-                                        {(form.typeSpecific == "IN" || form.typeSpecific == "NOT-IN") && <Link to={"/lista-valori-control/"+formId+"/"+form.pk} className='btn btn-primary mr-1'><i className="fas fa-list "></i></Link>}
+                                        {(form.typeSpecific == "IN" || form.typeSpecific == "NOT_IN") && <Link to={"/lista-valori-control/"+formId+"/"+form.pk} className='btn btn-primary mr-1'><i className="fas fa-list "></i></Link>}
                                         <span onClick={() => setControlloSelezionato(form)} data-toggle="modal" data-target="#deleteControl" className='btn btn-primary ml-1'><i className="fas fa-trash "></i></span>
                                     </div>
                                 </td>
@@ -119,11 +108,11 @@ export default function GooseControlListPanel() {
                             </button>
                         </div>
                         <div className="modal-body">
-                            Sei sicuro di voler eliminare il controllo con identificativo <strong>{controlloSelezionato?.pk}</strong>? <br /><strong>L'operazione è irreversibile!</strong>
+                            Sei sicuro di voler eliminare il controllo selezionato? <br /><strong>L'operazione è irreversibile!</strong>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                            <button data-dismiss="modal" onClick={() => eliminaComponente(controlloSelezionato?.pk != undefined ? controlloSelezionato.pk : -1)} type="button" className="btn btn-primary">Elimina controllo</button>
+                            <button data-dismiss="modal" onClick={() => eliminaControllo(controlloSelezionato?.pk != undefined ? controlloSelezionato.pk : -1)} type="button" className="btn btn-primary">Elimina controllo</button>
                         </div>
                     </div>
                 </div>

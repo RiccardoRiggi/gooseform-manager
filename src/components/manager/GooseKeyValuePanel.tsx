@@ -1,18 +1,9 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../../modules/feedback/actions';
-import gooseButtonService from '../../services/GooseButtonService';
 import gooseComponentService from '../../services/GooseComponentService';
-import gooseHttpService from '../../services/GooseHttpService';
-import goosePopupService from '../../services/GoosePopupService';
-import { GooseButtonType } from '../../type/GooseButtonType';
-import { GooseFormType } from '../../type/GooseFormType';
-import { GooseHttpRequestKv } from '../../type/GooseHttpRequestKv';
-import { GooseHttpRequestType } from '../../type/GooseHttpRequestType';
-import { GooseKeyValue } from '../../type/GooseKeyValue';
 import { GooseKVComponent } from '../../type/GooseKVComponent';
-import { GoosePopupType } from '../../type/GoosePopupType';
 
 
 export default function GooseKeyValuePanel() {
@@ -20,11 +11,9 @@ export default function GooseKeyValuePanel() {
     let params = useParams();
     let dispatch = useDispatch();
 
-    const [chiamataEsistente, setChiamataEsistente] = React.useState(false);
 
     const [ricercaEseguita, setRicercaEseguita] = React.useState(false);
 
-    const [chiamataTrovata, setChiamataTrovata] = React.useState<GooseHttpRequestType>();
     const [listaHeaders, setListaHeaders] = React.useState([]);
 
 
@@ -43,7 +32,7 @@ export default function GooseKeyValuePanel() {
         setValore(event.target.value);
     };
 
-    const ricercaHeaders = async () => {
+    const ricercaListaChiaveValore = async () => {
         dispatch(fetchIsLoadingAction(true));
         await gooseComponentService.getListaComponentKv(params.formId != undefined ? params.formId : "", params.componentId != undefined ? params.componentId : "").then(response => {
             console.warn(response.data);
@@ -58,7 +47,7 @@ export default function GooseKeyValuePanel() {
     const ricercaIniziale = async () => {
         if (!ricercaEseguita) {
             setRicercaEseguita(true);
-            ricercaHeaders();
+            ricercaListaChiaveValore();
         }
     }
 
@@ -66,7 +55,7 @@ export default function GooseKeyValuePanel() {
 
 
 
-    const salvaHeader = async () => {
+    const inserisciValore = async () => {
         dispatch(fetchTestoDangerAction(""));
         dispatch(fetchTestoWarnAction(""));
         dispatch(fetchTestoSuccessAction(""));
@@ -80,28 +69,24 @@ export default function GooseKeyValuePanel() {
             v: valore,
         };
 
-        console.warn(jsonBody);
-
-
-
         await gooseComponentService.inserisciComponenteKv(jsonBody).then(response => {
-            dispatch(fetchTestoSuccessAction("Inserimento header avvenuto con successo"));
-            ricercaHeaders();
+            dispatch(fetchTestoSuccessAction("Valore inserito con successo"));
+            ricercaListaChiaveValore();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
-            dispatch(fetchTestoDangerAction("Errore durante l'inserimento dell'header "));
+            dispatch(fetchTestoDangerAction("Errore durante l'inserimento del valore"));
         });
     }
 
-    const eliminaHeader = async (oggetto: GooseKVComponent) => {
+    const eliminaValore = async (oggetto: GooseKVComponent) => {
         await gooseComponentService.eliminaComponentKv(formId,componentId,oggetto.k).then(response => {
-            dispatch(fetchTestoSuccessAction("Header cancellato con successo"));
-            ricercaHeaders();
+            dispatch(fetchTestoSuccessAction("Valore cancellato con successo"));
+            ricercaListaChiaveValore();
         }).catch(e => {
             console.error(e.response);
             dispatch(fetchIsLoadingAction(false));
-            dispatch(fetchTestoDangerAction("Errore durante la cancellazione dell'header"));
+            dispatch(fetchTestoDangerAction("Errore durante la cancellazione del valore"));
         });
     }
 
@@ -132,7 +117,7 @@ export default function GooseKeyValuePanel() {
                                             <input type={"text"} onChange={aggiornaValore} className={"form-control"} id={"valore"} name={"valore"} placeholder={"Valore..."} value={valore} />
                                         </th>
                                         <th scope="col " className='text-center'>
-                                            <span onClick={salvaHeader} className='btn btn-primary' ><i className="fas fa-save"></i></span>
+                                            <span onClick={inserisciValore} className='btn btn-primary' ><i className="fas fa-save"></i></span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -142,7 +127,7 @@ export default function GooseKeyValuePanel() {
                                             <th scope="row">{header.k}</th>
                                             <td>{header.v}</td>
                                             <td className='text-center'>
-                                                <span onClick={() => eliminaHeader(header)} className='btn btn-primary' ><i className="fas fa-trash "></i></span>
+                                                <span onClick={() => eliminaValore(header)} className='btn btn-primary' ><i className="fas fa-trash "></i></span>
                                             </td>
                                         </tr>
                                     )}

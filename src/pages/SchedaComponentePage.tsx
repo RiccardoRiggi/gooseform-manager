@@ -1,13 +1,8 @@
 import React, { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
 import Layout from '../components/Layout';
-import gooseFormService from '../services/GooseFormService';
-import remarkGfm from 'remark-gfm'
 import { useDispatch } from 'react-redux';
 import { fetchIsLoadingAction, fetchTestoDangerAction, fetchTestoSuccessAction, fetchTestoWarnAction } from '../modules/feedback/actions';
-import { GooseFormType } from '../type/GooseFormType';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { InserisciFormValidator } from '../validators/InserisciFormValidator';
 import gooseComponentService from '../services/GooseComponentService';
 import { InserisciComponenteValidator } from '../validators/InserisciComponenteValidator';
 import { GooseComponentType } from '../type/GooseComponentType';
@@ -166,7 +161,7 @@ export default function SchedaComponentePage() {
 
             await gooseComponentService.modificaComponent(formId, componentId, jsonBody).then(response => {
                 dispatch(fetchIsLoadingAction(false));
-                dispatch(fetchTestoSuccessAction("Salvataggio avvenuto con successo"));
+                dispatch(fetchTestoSuccessAction("Componente modificato con successo"));
                 navigate("/scheda-componente/" + formId + "/" + componentId);
             }).catch(e => {
                 dispatch(fetchIsLoadingAction(false));
