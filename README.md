@@ -143,6 +143,13 @@ Per ogni componente è possibile inserire un render condizionale, ovvero disabil
 
 ---
 
+## Changelog
+
+XX/01/2023
+- Implementato il campo "ordination" per gestire l'ordine dei componenti 
+
+--- 
+
 ## Bom / Diba
 
 [SB Admin 2 (Tema basato su Bootstrap 4)](https://startbootstrap.com/theme/sb-admin-2)

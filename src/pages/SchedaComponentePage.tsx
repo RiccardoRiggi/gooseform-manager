@@ -134,6 +134,12 @@ export default function SchedaComponentePage() {
         setRequiredMark(event.target.value);
     };
 
+    const [ordination, setOrdination] = React.useState<number>(1);
+
+    const aggiornaOrdination = (event: any) => {
+        setOrdination(event.target.value);
+    };
+
     const modificaForm = async () => {
         dispatch(fetchTestoDangerAction(""));
         dispatch(fetchTestoWarnAction(""));
@@ -156,7 +162,8 @@ export default function SchedaComponentePage() {
                 widthMd: widthMd,
                 widthSm: widthMd,
                 width: width,
-                requiredMark: requiredMark == "SI"
+                requiredMark: requiredMark == "SI",
+                ordination: ordination
             };
 
             await gooseComponentService.modificaComponent(formId, componentId, jsonBody).then(response => {
@@ -193,6 +200,7 @@ export default function SchedaComponentePage() {
                 setWidthXl(formTrovato.widthXl);
                 setRequiredMark(formTrovato.requiredMark==true?"SI":"NO");
                 recuperaListaPossibiliAttributiSpecifici(formTrovato.type);
+                setOrdination(formTrovato.ordination);
 
                 dispatch(fetchIsLoadingAction(false));
             }).catch(e => {
@@ -226,12 +234,12 @@ export default function SchedaComponentePage() {
                 </div>
                 <div className="card-body">
                     <div className='row'>
-                        <div className='col-6'>
+                        <div className='col-5'>
                             <label>Label<strong className='text-danger'>*</strong></label>
                             <input type={"text"} onChange={aggiornaLabel} className={"form-control"} id={"label"} name={"label"} placeholder={"Inserisci una label"} value={label} />
                             <small className='text-danger'>{formErrors.label}</small>
                         </div>
-                        <div className='col-6'>
+                        <div className='col-5'>
                             <label>Tipo</label>
 
                             <select disabled className={"form-control"} id={"type"} onChange={aggiornaType} value={type}>
@@ -242,6 +250,11 @@ export default function SchedaComponentePage() {
                             <small className='text-danger'>{formErrors.type}</small>
                         </div>
 
+                        <div className='col-2'>
+                            <label>Ordine<strong className='text-danger'>*</strong></label>
+                            <input type={"number"} onChange={aggiornaOrdination} className={"form-control"} id={"ordination"} name={"ordination"} placeholder={"Inserisci un numero..."} value={ordination} />
+                            <small className='text-danger'>{formErrors.ordination}</small>
+                        </div>
 
                         <div className='col-2'>
                             <label>Width</label>

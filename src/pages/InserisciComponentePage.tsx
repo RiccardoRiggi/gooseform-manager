@@ -120,6 +120,12 @@ export default function InserisciComponentePage() {
         setRequiredMark(event.target.value);
     };
 
+    const [ordination, setOrdination] = React.useState<number>(1);
+
+    const aggiornaOrdination = (event: any) => {
+        setOrdination(event.target.value);
+    };
+
     const inserisciForm = async () => {
         dispatch(fetchTestoDangerAction(""));
         dispatch(fetchTestoWarnAction(""));
@@ -142,7 +148,8 @@ export default function InserisciComponentePage() {
                 widthMd: widthMd,
                 widthSm: widthMd,
                 width: width,
-                requiredMark: requiredMark == "SI"
+                requiredMark: requiredMark == "SI",
+                ordination: ordination
             };
 
             await gooseComponentService.inserisciComponente(jsonBody).then(response => {
@@ -161,6 +168,22 @@ export default function InserisciComponentePage() {
 
     }
 
+    const [ricercaEseguita, setRicercaEseguita] = React.useState(false);
+
+
+    const ricercaIniziale = async () => {
+        if (!ricercaEseguita) {
+            setRicercaEseguita(true);
+            await gooseComponentService.getListaComponent(formId).then(response => {
+                setOrdination(response.data.length + 1);
+            }).catch(e => {
+                console.error(e);
+            });
+        }
+    }
+
+    ricercaIniziale();
+
     return (
         <Layout>
             <Link className='btn btn-primary mb-2' to={"/scheda-form/" + formId}>Indietro</Link>
@@ -174,14 +197,14 @@ export default function InserisciComponentePage() {
                 </div>
                 <div className="card-body">
                     <div className='row'>
-                        <div className='col-4'>
+                        <div className='col-3'>
                             <label>Identificativo<strong className='text-danger'>*</strong></label>
                             <input type={"text"} onChange={aggiornaComponentId} className={componentIdEsistente ? "form-control is-invalid" : "form-control"} id={"formId"} name={"formId"} placeholder={"Inserisci il componentId"} value={componentId} />
                             {componentIdEsistente && <small className='text-danger'>L'identificativo inserito non è disponibile</small>
                             }
                             <small className='text-danger'>{formErrors.componentId}</small>
                         </div>
-                        <div className='col-4'>
+                        <div className='col-3'>
                             <label>Label<strong className='text-danger'>*</strong></label>
                             <input type={"text"} onChange={aggiornaLabel} className={"form-control"} id={"label"} name={"label"} placeholder={"Inserisci una label"} value={label} />
                             <small className='text-danger'>{formErrors.label}</small>
@@ -197,6 +220,11 @@ export default function InserisciComponentePage() {
                             <small className='text-danger'>{formErrors.type}</small>
                         </div>
 
+                        <div className='col-2'>
+                            <label>Ordine<strong className='text-danger'>*</strong></label>
+                            <input type={"number"} onChange={aggiornaOrdination} className={"form-control"} id={"ordination"} name={"ordination"} placeholder={"Inserisci un numero..."} value={ordination} />
+                            <small className='text-danger'>{formErrors.ordination}</small>
+                        </div>
 
                         <div className='col-2'>
                             <label>Width</label>
@@ -251,6 +279,7 @@ export default function InserisciComponentePage() {
                                 )}
                             </select>
                         </div>
+
                     </div>
                 </div>
             </div>

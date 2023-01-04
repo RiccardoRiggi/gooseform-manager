@@ -10,5 +10,6 @@ export type GooseComponentType = {
     widthSm: string
     width: string
     requiredMark: boolean
+    ordination: number
 
 }

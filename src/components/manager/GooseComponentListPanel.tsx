@@ -71,6 +71,7 @@ export default function GooseComponentListPanel() {
                                 <th scope="col">Id</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Label</th>
+                                <th scope="col">Order</th>
                                 <th scope="col"></th>
                                 <th scope="col"></th>
                             </tr>
@@ -81,6 +82,7 @@ export default function GooseComponentListPanel() {
                                 <th scope="row">{form.id}</th>
                                 <td>{form.type}</td>
                                 <td>{form.label}</td>
+                                <td>{form.ordination}</td>
                                 <td className='text-center'><Link className='btn btn-primary' to={"/scheda-componente/" + form.formId+"/"+form.id} ><i className="fas fa-edit"></i></Link></td>
                                 <td className='text-center'><span onClick={() => setComponenteSelezionato(form)} data-toggle="modal" data-target="#deleteForm" className='btn btn-primary'><i className="fas fa-trash"></i></span></td>
                             </tr>

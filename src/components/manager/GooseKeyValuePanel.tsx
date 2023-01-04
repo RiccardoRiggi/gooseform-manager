@@ -32,11 +32,18 @@ export default function GooseKeyValuePanel() {
         setValore(event.target.value);
     };
 
+    const [ordination, setOrdination] = React.useState<number>(1);
+
+    const aggiornaOrdination = (event: any) => {
+        setOrdination(event.target.value);
+    };
+
     const ricercaListaChiaveValore = async () => {
         dispatch(fetchIsLoadingAction(true));
         await gooseComponentService.getListaComponentKv(params.formId != undefined ? params.formId : "", params.componentId != undefined ? params.componentId : "").then(response => {
             console.warn(response.data);
             setListaHeaders(response.data);
+            setOrdination(response.data.length+1);
             dispatch(fetchIsLoadingAction(false));
         }).catch(e => {
             console.error(e);
@@ -67,6 +74,7 @@ export default function GooseKeyValuePanel() {
             componentId: componentId,
             k: chiave,
             v: valore,
+            ordination: ordination
         };
 
         await gooseComponentService.inserisciComponenteKv(jsonBody).then(response => {
@@ -107,6 +115,7 @@ export default function GooseKeyValuePanel() {
                                     <tr>
                                         <th scope="col">Chiave</th>
                                         <th scope="col">Valore</th>
+                                        <th scope="col">Ordine</th>
                                         <th scope="col"></th>
                                     </tr>
                                     <tr>
@@ -115,6 +124,9 @@ export default function GooseKeyValuePanel() {
                                         </th>
                                         <th scope="col">
                                             <input type={"text"} onChange={aggiornaValore} className={"form-control"} id={"valore"} name={"valore"} placeholder={"Valore..."} value={valore} />
+                                        </th>
+                                        <th scope="col">
+                                            <input type={"number"} onChange={aggiornaOrdination} className={"form-control"} id={"ordination"} name={"ordination"} placeholder={"Numero..."} value={ordination} />
                                         </th>
                                         <th scope="col " className='text-center'>
                                             <span onClick={inserisciValore} className='btn btn-primary' ><i className="fas fa-save"></i></span>
@@ -126,6 +138,7 @@ export default function GooseKeyValuePanel() {
                                         <tr>
                                             <th scope="row">{header.k}</th>
                                             <td>{header.v}</td>
+                                            <td>{header.ordination}</td>
                                             <td className='text-center'>
                                                 <span onClick={() => eliminaValore(header)} className='btn btn-primary' ><i className="fas fa-trash "></i></span>
                                             </td>
