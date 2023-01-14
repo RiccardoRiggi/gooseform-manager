@@ -11,5 +11,9 @@ export type GooseComponentType = {
     width: string
     requiredMark: boolean
     ordination: number
+    paddingTop: string
+    paddingBottom: string
+    paddingLeft: string
+    paddingRight: string    
 
 }

@@ -56,6 +56,10 @@ export default function SchedaComponentePage() {
         "NO", "SI"
     ]
 
+    const listaPadding = [
+        "0", "1", "2", "3", "4", "5"
+    ]
+
     let dispatch = useDispatch();
     let navigate = useNavigate();
 
@@ -140,6 +144,30 @@ export default function SchedaComponentePage() {
         setOrdination(event.target.value);
     };
 
+    const [paddingBottom, setPaddingBottom] = React.useState<string>("0");
+
+    const aggiornaPaddingBottom = (event: any) => {
+        setPaddingBottom(event.target.value);
+    };
+
+    const [paddingLeft, setPaddingLeft] = React.useState<string>("0");
+
+    const aggiornaPaddingLeft = (event: any) => {
+        setPaddingLeft(event.target.value);
+    };
+
+    const [paddingRight, setPaddingRight] = React.useState<string>("0");
+
+    const aggiornaPaddingRight = (event: any) => {
+        setPaddingRight(event.target.value);
+    };
+
+    const [paddingTop, setPaddingTop] = React.useState<string>("0");
+
+    const aggiornaPaddingTop = (event: any) => {
+        setPaddingTop(event.target.value);
+    };
+
     const modificaForm = async () => {
         dispatch(fetchTestoDangerAction(""));
         dispatch(fetchTestoWarnAction(""));
@@ -163,7 +191,11 @@ export default function SchedaComponentePage() {
                 widthSm: widthMd,
                 width: width,
                 requiredMark: requiredMark == "SI",
-                ordination: ordination
+                ordination: ordination,
+                paddingBottom: paddingBottom,
+                paddingLeft: paddingLeft,
+                paddingRight: paddingRight,
+                paddingTop: paddingTop
             };
 
             await gooseComponentService.modificaComponent(formId, componentId, jsonBody).then(response => {
@@ -201,6 +233,10 @@ export default function SchedaComponentePage() {
                 setRequiredMark(formTrovato.requiredMark==true?"SI":"NO");
                 recuperaListaPossibiliAttributiSpecifici(formTrovato.type);
                 setOrdination(formTrovato.ordination);
+                setPaddingBottom( formTrovato.paddingBottom)
+                setPaddingLeft( formTrovato.paddingLeft)
+                setPaddingRight( formTrovato.paddingRight)
+                setPaddingTop( formTrovato.paddingTop)
 
                 dispatch(fetchIsLoadingAction(false));
             }).catch(e => {
@@ -305,6 +341,42 @@ export default function SchedaComponentePage() {
                             <label>Required Mark</label>
                             <select className={"form-control"} id={"requiredMark"} onChange={aggiornaRequiredMark} value={requiredMark}>
                                 {Array.isArray(listaSiNo) && listaSiNo.map((val: string) =>
+                                    <option value={val} >{val}</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className='col-3'>
+                            <label>Padding Bottom</label>
+                            <select className={"form-control"} id={"paddingBottom"} onChange={aggiornaPaddingBottom} value={paddingBottom}>
+                                {Array.isArray(listaPadding) && listaPadding.map((val: string) =>
+                                    <option value={val} >{val}</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className='col-3'>
+                            <label>Padding Left</label>
+                            <select className={"form-control"} id={"paddingLeft"} onChange={aggiornaPaddingLeft} value={paddingLeft}>
+                                {Array.isArray(listaPadding) && listaPadding.map((val: string) =>
+                                    <option value={val} >{val}</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className='col-3'>
+                            <label>Padding Right</label>
+                            <select className={"form-control"} id={"paddingRight"} onChange={aggiornaPaddingRight} value={paddingRight}>
+                                {Array.isArray(listaPadding) && listaPadding.map((val: string) =>
+                                    <option value={val} >{val}</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className='col-3'>
+                            <label>Padding Top</label>
+                            <select className={"form-control"} id={"paddingTop"} onChange={aggiornaPaddingTop} value={paddingTop}>
+                                {Array.isArray(listaPadding) && listaPadding.map((val: string) =>
                                     <option value={val} >{val}</option>
                                 )}
                             </select>
